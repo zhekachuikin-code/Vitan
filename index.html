@@ -118,20 +118,6 @@
         .guide-tip p { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
         .guide-tip p + p { margin-top: 5px; }
 
-        .key-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 7px 11px;
-            background: var(--surface2); border: 1px solid var(--border);
-            border-radius: 7px; margin-bottom: 5px;
-        }
-        .key-label { font-size: 11px; color: var(--text-muted); }
-        .key-status {
-            font-size: 10px; font-weight: 600;
-            padding: 2px 7px; border-radius: 10px;
-        }
-        .key-status.active { background: rgba(61,220,132,0.15); color: var(--green); }
-        .key-status.used   { background: rgba(248,113,113,0.12); color: #f87171; }
-
         .main {
             padding: 28px 36px;
             overflow-y: auto;
@@ -202,7 +188,6 @@
         #status.ok  { color: var(--green); }
         #status.err { color: #f87171; }
 
-        /* Name block */
         .name-block {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -212,29 +197,19 @@
             flex-direction: column;
         }
         .name-block.visible { display: flex; }
+        
         .name-header {
             display: flex; align-items: center; justify-content: space-between;
             padding: 11px 16px;
             background: linear-gradient(90deg, #1a2a1a, #161e16);
             border-bottom: 1px solid var(--border);
         }
-        .name-header .lang-name {
-            font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
-            color: var(--text); display: flex; align-items: center; gap: 8px;
-        }
+        
         .dot-green { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; }
         .dot-blue  { width: 7px; height: 7px; border-radius: 50%; background: var(--blue);  display: inline-block; }
         .dot-gold  { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; }
         .dot-violet{ width: 7px; height: 7px; border-radius: 50%; background: var(--violet); display: inline-block; }
 
-        .name-block textarea {
-            width: 100%; height: 68px;
-            font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.5;
-            padding: 12px 14px; border: none; resize: none;
-            background: var(--bg); color: #c8e0b8; outline: none;
-        }
-
-        /* Desc + SEO blocks */
         .results-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -274,6 +249,7 @@
             background: var(--bg); color: #9ab3d4; outline: none;
         }
         .lang-block textarea.seo-ta { color: #c8b87a; height: 200px; }
+        .lang-block textarea.name-ta { height: 68px; color: #7ab4e8; font-size: 13px; resize: none; }
 
         .copy-btn {
             padding: 4px 12px;
@@ -288,7 +264,6 @@
         .copy-btn:hover { background: rgba(255,255,255,0.14); }
         .copy-btn.copied { color: var(--green); border-color: rgba(61,220,132,0.3); }
 
-        /* Manager Notes */
         .notes-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -326,6 +301,7 @@
             white-space: nowrap;
         }
         .chip:hover { background: rgba(240,196,74,0.1); border-color: rgba(240,196,74,0.35); color: var(--accent); }
+        
         #managerNotes {
             width: 100%; min-height: 90px; max-height: 220px;
             font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.65;
@@ -343,7 +319,6 @@
 
         .foot-note { font-size: 11px; color: var(--text-dim); padding-top: 2px; }
 
-        /* Name results grid */
         .name-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
         ::-webkit-scrollbar { width: 5px; }
@@ -406,12 +381,7 @@
         <div class="guide-tip">
             <div class="tip-label">💡 Советы</div>
             <p>Товар должен быть публично доступен (без авторизации).</p>
-            <p>При ошибке ключа система автоматически переключится на следующий.</p>
-        </div>
-
-        <div>
-            <div class="sidebar-title" style="margin-bottom:10px;">🔑 API Ключи</div>
-            <div id="keysStatus"></div>
+            <p>Запросы теперь защищены и обрабатываются на сервере.</p>
         </div>
     </aside>
 
@@ -422,7 +392,6 @@
             <p>Улучшенное название · Чистый текст · SEO-ключи на двух языках</p>
         </div>
 
-        <!-- Input Card -->
         <div class="card">
             <div class="card-label">Ссылка на товар</div>
             <div class="input-row">
@@ -436,7 +405,6 @@
             <div id="status"></div>
         </div>
 
-        <!-- Manager Notes -->
         <div class="notes-card">
             <div class="notes-header" id="notesToggleBtn" onclick="toggleNotes()">
                 <div class="notes-header-left">
@@ -476,25 +444,23 @@
             </div>
         </div>
 
-        <!-- Name results -->
         <div class="name-grid" id="nameGrid">
             <div class="lang-block" id="blockNameUA">
                 <div class="lang-header name-ua">
                     <div class="lang-name"><span class="dot-blue"></span>🇺🇦 Назва (УКР)</div>
                     <button class="copy-btn" onclick="copyText('nameUA', this)">Скопировать</button>
                 </div>
-                <textarea id="nameUA" readonly style="height:68px;color:#7ab4e8;font-size:13px;"></textarea>
+                <textarea id="nameUA" readonly class="name-ta"></textarea>
             </div>
             <div class="lang-block" id="blockNameRU">
                 <div class="lang-header name-ru">
                     <div class="lang-name"><span class="dot-green"></span>🇷🇺 Название (РУС)</div>
                     <button class="copy-btn" onclick="copyText('nameRU', this)">Скопировать</button>
                 </div>
-                <textarea id="nameRU" readonly style="height:68px;color:#7ab4e8;font-size:13px;"></textarea>
+                <textarea id="nameRU" readonly class="name-ta"></textarea>
             </div>
         </div>
 
-        <!-- Description results -->
         <div class="results-grid" id="descGrid">
             <div class="lang-block" id="blockUA">
                 <div class="lang-header ua">
@@ -512,7 +478,6 @@
             </div>
         </div>
 
-        <!-- SEO results -->
         <div class="results-grid" id="seoGrid">
             <div class="lang-block" id="blockSEO-UA">
                 <div class="lang-header seo-ua">
@@ -535,33 +500,8 @@
 </div>
 
 <script>
-const apiKeys = [
-    "AIzaSyDchwsFDNQNv41xlyXuNaKmGixildFYiCY",
-    "AIzaSyARP13w8qXbv_PlD2CyMbbrOXiOOt99jRA",
-    "AIzaSyCDqN510WMPohxIqVZQRBB4wg4HDQfJ51s",
-    "AIzaSyCMctPZBeLCWMPQzoc9haUjv2H25GmEWuM",
-    "AIzaSyDkeVZOy3EC9zF0BxLHka0r1IOOQyTHEfc",
-    "AIzaSyAcaVx7LmVooOMMstFAq_gAUA7UI9xBvms",
-    "AIzaSyCJXbwobACJBUf5ckeqSs4yDGxZaktezVs"
-];
-const MODEL = "gemini-3.1-flash-lite";
-
-(function renderKeys() {
-    const c = document.getElementById('keysStatus');
-    apiKeys.forEach((k, i) => {
-        c.innerHTML += `<div class="key-item" id="keyItem${i}">
-            <span class="key-label">Ключ #${i+1} ···${k.slice(-6)}</span>
-            <span class="key-status active" id="keyStatus${i}">Активен</span>
-        </div>`;
-    });
-})();
-
-function setKeyStatus(i, state) {
-    const el = document.getElementById('keyStatus' + i);
-    if (!el) return;
-    el.className = 'key-status ' + state;
-    el.textContent = state === 'active' ? 'Активен' : 'Лимит';
-}
+// ВСТАВЬ СЮДА СВОЮ ССЫЛКУ С RENDER (ОБЯЗАТЕЛЬНО С /api/generate В КОНЦЕ)
+const SERVER_URL = 'https://gemini-api-server-dnzk.onrender.com/api/generate';
 
 function setStatus(msg, type) {
     const el = document.getElementById('status');
@@ -581,22 +521,23 @@ async function fetchPageText(url) {
 }
 
 async function callGemini(prompt) {
-    for (let i = 0; i < apiKeys.length; i++) {
-        setStatus(`⏳ Запрос к API (ключ №${i + 1})...`, '');
-        try {
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKeys[i]}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.35 } })
-            });
-            const data = await resp.json();
-            if (data.error) { setKeyStatus(i, 'used'); continue; }
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (text) return { ok: true, text };
-            setKeyStatus(i, 'used');
-        } catch (e) { setKeyStatus(i, 'used'); }
+    setStatus('⏳ Запрос к серверу...', '');
+    try {
+        const resp = await fetch(SERVER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+        });
+        const data = await resp.json();
+        
+        if (data.ok) {
+            return { ok: true, text: data.text };
+        } else {
+            return { ok: false, text: '' };
+        }
+    } catch (e) {
+        return { ok: false, text: '' };
     }
-    return { ok: false, text: '' };
 }
 
 async function generateName() {
@@ -691,7 +632,7 @@ ${advHeader}
 Описание пользы для покупателя 2-3 предложения.
 
 ${adviceHeader}
-Практический совет по использованию товара (2-4 предложения).
+Практический совет по использования товара (2-4 предложения).
 
 ${faqHeader}
 Вопрос 1?
@@ -713,7 +654,6 @@ ${faqHeader}
 4. Выведи только готовое описание.`;
 }
 
-// Объединенная функция генерации описания
 async function generate() {
     const url = document.getElementById('link').value.trim();
     if (!url) { setStatus('⚠️ Вставьте ссылку на товар!', 'err'); return; }
@@ -755,7 +695,7 @@ async function generate() {
             
             setStatus('🎉 Описания готовы и сохранены в таблицу!', 'ok');
         } else {
-            setStatus('⚠️ УКР готово, но ключи закончились при генерации РУС.', '');
+            setStatus('⚠️ УКР готово, но произошла ошибка при генерации РУС.', '');
         }
     } else {
         setStatus('❌ Ошибка при генерации УКР.', 'err');
@@ -763,7 +703,6 @@ async function generate() {
     btn.disabled = false;
 }
 
-// Добавленная функция генерации SEO ключей
 async function generateSEO() {
     const textUA = document.getElementById('resUA').value;
     const textRU = document.getElementById('resRU').value;
@@ -807,9 +746,11 @@ function copyText(id, btn) {
     }, 2000);
 }
 
-function toggleNotes() { document.getElementById('notesBody').classList.toggle('open'); }
+function toggleNotes() { 
+    document.getElementById('notesBody').classList.toggle('open');
+    document.getElementById('notesArrow').classList.toggle('open');
+}
 
-// Исправленная логика быстрой вставки (теперь вставляется понятный текст)
 const chipTranslations = {
     brand: 'Бренд: ', promo: 'Акция: ', delivery: 'Доставка: ', 
     warranty: 'Гарантия: ', assembly: 'Монтаж: ', gift: 'Подарок: ', 
@@ -824,22 +765,34 @@ function insertChip(k) {
     onNotesChange(); 
 }
 
-function onNotesChange() { document.getElementById('notesBadge').style.display = 'inline'; }
-function clearNotes() { document.getElementById('managerNotes').value = ''; document.getElementById('notesBadge').style.display = 'none'; }
+function onNotesChange() { 
+    const val = document.getElementById('managerNotes').value;
+    document.getElementById('notesBadge').style.display = val.length > 0 ? 'inline' : 'none';
+    document.getElementById('notesChars').textContent = val.length + ' символов';
+}
+
+function clearNotes() { 
+    document.getElementById('managerNotes').value = ''; 
+    onNotesChange();
+}
 
 async function saveToSheet(url, nameUA, resUA, resRU) {
     const webAppUrl = "https://script.google.com/macros/s/AKfycbytTX6VAk55yvG9WY6V2_Z4569j5ZcojOa3Bj_VUht4omdRoElQr7K9Eh4knMVohma9/exec";
-    await fetch(webAppUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify({
-            url: url,
-            nameUA: nameUA,
-            resUA: resUA,
-            resRU: resRU
-        })
-    });
-    console.log("Данные отправлены");
+    try {
+        await fetch(webAppUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({
+                url: url,
+                nameUA: nameUA,
+                resUA: resUA,
+                resRU: resRU
+            })
+        });
+        console.log("Данные отправлены");
+    } catch (e) {
+        console.error("Ошибка сохранения в таблицу:", e);
+    }
 }
 </script>
 </body>
