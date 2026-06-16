@@ -421,6 +421,10 @@
                 <button class="btn btn-primary" id="genBtn" onclick="generate()">✨ Создать описание</button>
                 <button class="btn btn-seo" id="seoBtn" onclick="generateSEO()" disabled>🔑 SEO-ключи</button>
                 <button class="btn btn-blue" id="nameBtn" onclick="generateName()" disabled>✦ Улучшить название</button>
+                <button class="btn" id="saveBtn" onclick="saveToSheets()" disabled
+  style="background:linear-gradient(135deg,#34d399,#059669);color:#0d0f12;">
+  📊 В таблицу
+</button>
             </div>
             <div id="status"></div>
         </div>
@@ -775,6 +779,7 @@ async function generateSEO() {
         showBlock('blockSEO-RU');
         // Unlock name button after SEO is ready
         document.getElementById('nameBtn').disabled = false;
+        document.getElementById('saveBtn').disabled = false;    
         setStatus('✅ SEO-ключи готовы! Теперь можно улучшить наименование.', 'ok');
     } else {
         setStatus('❌ Ошибка при генерации SEO.', 'err');
@@ -823,6 +828,31 @@ function onNotesChange() {
 function clearNotes() { 
     document.getElementById('managerNotes').value = ''; 
     onNotesChange();
+}
+const SHEETS_URL = 'СЮДА_ВСТАВЬ_URL_ИЗ_APPS_SCRIPT';
+
+async function saveToSheets() {
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  setStatus('⏳ Сохраняю...', '');
+  try {
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        url:    document.getElementById('link').value,
+        nameUA: document.getElementById('nameUA').value,
+        nameRU: document.getElementById('nameRU').value,
+        descUA: document.getElementById('resUA').value,
+        descRU: document.getElementById('resRU').value,
+        seoUA:  document.getElementById('seoUA').value,
+        seoRU:  document.getElementById('seoRU').value,
+      })
+    });
+    setStatus('✅ Сохранено в Google Таблицу!', 'ok');
+  } catch(e) {
+    setStatus('❌ Ошибка сохранения.', 'err');
+  }
+  btn.disabled = false;
 }
 </script>
 </body>
