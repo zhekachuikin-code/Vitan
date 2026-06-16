@@ -776,12 +776,12 @@ function clearNotes() {
     onNotesChange();
 }
 
-async function saveToSheet(url, nameUA, resUA, resRU) {
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbytTX6VAk55yvG9WY6V2_Z4569j5ZcojOa3Bj_VUht4omdRoElQr7K9Eh4knMVohma9/exec";
+    async function saveToSheet(url, nameUA, resUA, resRU) {
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbxkeSuaXTquvtoq1B9eNy7y5WzOY394hJJbZp-0123Bx_NFZNcl2jtHgT7E5l1joZgpwQ/exec";
     try {
         await fetch(webAppUrl, {
             method: 'POST',
-            mode: 'no-cors',
+            mode: 'no-cors', // Это важно, чтобы обойти CORS в таблицах
             body: JSON.stringify({
                 url: url,
                 nameUA: nameUA,
@@ -789,9 +789,8 @@ async function saveToSheet(url, nameUA, resUA, resRU) {
                 resRU: resRU
             })
         });
-        console.log("Данные отправлены");
     } catch (e) {
-        console.error("Ошибка сохранения в таблицу:", e);
+        console.error("Ошибка сохранения:", e);
     }
 }
 </script>
