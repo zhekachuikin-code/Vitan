@@ -233,7 +233,7 @@
         .lang-header.ua  { background: linear-gradient(90deg, #1a3a5c, #162f48); border-bottom: 1px solid #1e3d5e; }
         .lang-header.ru  { background: linear-gradient(90deg, #1a3a28, #142d1e); border-bottom: 1px solid #1e3d2a; }
         .lang-header.seo-ua { background: linear-gradient(90deg, #2a2a1a, #22221a); border-bottom: 1px solid #3a3a1e; }
-        .lang-header.seo-ru { background: linear-gradient(90deg, #2a1a2a, #221622); border-bottom: 1px solid #3a1e3a; }
+        .lang-header.seo-ru { background: linear-gradient(90deg, #2a1a2a, #22162a); border-bottom: 1px solid #3a1e3a; }
         .lang-header.name-ua { background: linear-gradient(90deg, #1a3a5c, #162f48); border-bottom: 1px solid #1e3d5e; }
         .lang-header.name-ru { background: linear-gradient(90deg, #1a3a28, #142d1e); border-bottom: 1px solid #1e3d2a; }
 
@@ -321,6 +321,26 @@
 
         .name-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
+        /* Name section divider */
+        .name-section-header {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+        }
+        .name-section-header.visible { display: flex; }
+        .name-section-label {
+            font-family: 'Syne', sans-serif;
+            font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--blue);
+            white-space: nowrap;
+        }
+        .name-section-line {
+            flex: 1; height: 1px;
+            background: linear-gradient(90deg, rgba(79,158,248,0.3), transparent);
+        }
+
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
@@ -351,29 +371,29 @@
             <div class="guide-step">
                 <div class="step-num">2</div>
                 <div class="step-body">
-                    <h4>Улучшите наименование</h4>
-                    <p>Нажмите «Улучшить название» — AI уберёт лишние символы и ключи для Google.</p>
-                </div>
-            </div>
-            <div class="guide-step">
-                <div class="step-num">3</div>
-                <div class="step-body">
                     <h4>Добавьте примечания</h4>
                     <p>Бренд, акции, доставка, гарантия — AI учтёт их в описании.</p>
                 </div>
             </div>
             <div class="guide-step">
-                <div class="step-num">4</div>
+                <div class="step-num">3</div>
                 <div class="step-body">
                     <h4>Создайте описание</h4>
                     <p>Чистый текст без HTML-тегов на двух языках.</p>
                 </div>
             </div>
             <div class="guide-step">
-                <div class="step-num">5</div>
+                <div class="step-num">4</div>
                 <div class="step-body">
                     <h4>Сгенерируйте SEO-ключи</h4>
                     <p>Дополнительные ключевые слова для продвижения.</p>
+                </div>
+            </div>
+            <div class="guide-step">
+                <div class="step-num">5</div>
+                <div class="step-body">
+                    <h4>Улучшите наименование</h4>
+                    <p>AI составит SEO-оптимальное название на основе описания и ключевых слов.</p>
                 </div>
             </div>
         </div>
@@ -389,7 +409,7 @@
 
         <div class="page-head">
             <h1>Генератор описаний товаров</h1>
-            <p>Улучшенное название · Чистый текст · SEO-ключи на двух языках</p>
+            <p>Чистый текст · SEO-ключи · Улучшенное название на двух языках</p>
         </div>
 
         <div class="card">
@@ -398,9 +418,9 @@
                 <input type="text" id="link" placeholder="https://example.com/product-page">
             </div>
             <div class="action-row">
-                <button class="btn btn-blue" id="nameBtn" onclick="generateName()">✦ Улучшить название</button>
                 <button class="btn btn-primary" id="genBtn" onclick="generate()">✨ Создать описание</button>
                 <button class="btn btn-seo" id="seoBtn" onclick="generateSEO()" disabled>🔑 SEO-ключи</button>
+                <button class="btn btn-blue" id="nameBtn" onclick="generateName()" disabled>✦ Улучшить название</button>
             </div>
             <div id="status"></div>
         </div>
@@ -444,23 +464,6 @@
             </div>
         </div>
 
-        <div class="name-grid" id="nameGrid">
-            <div class="lang-block" id="blockNameUA">
-                <div class="lang-header name-ua">
-                    <div class="lang-name"><span class="dot-blue"></span>🇺🇦 Назва (УКР)</div>
-                    <button class="copy-btn" onclick="copyText('nameUA', this)">Скопировать</button>
-                </div>
-                <textarea id="nameUA" readonly class="name-ta"></textarea>
-            </div>
-            <div class="lang-block" id="blockNameRU">
-                <div class="lang-header name-ru">
-                    <div class="lang-name"><span class="dot-green"></span>🇷🇺 Название (РУС)</div>
-                    <button class="copy-btn" onclick="copyText('nameRU', this)">Скопировать</button>
-                </div>
-                <textarea id="nameRU" readonly class="name-ta"></textarea>
-            </div>
-        </div>
-
         <div class="results-grid" id="descGrid">
             <div class="lang-block" id="blockUA">
                 <div class="lang-header ua">
@@ -492,6 +495,29 @@
                     <button class="copy-btn" onclick="copyText('seoRU', this)">Скопировать</button>
                 </div>
                 <textarea id="seoRU" readonly class="seo-ta"></textarea>
+            </div>
+        </div>
+
+        <!-- Name section appears after SEO -->
+        <div class="name-section-header" id="nameSectionHeader">
+            <span class="name-section-label">✦ SEO-оптимальное наименование</span>
+            <div class="name-section-line"></div>
+        </div>
+
+        <div class="name-grid" id="nameGrid">
+            <div class="lang-block" id="blockNameUA">
+                <div class="lang-header name-ua">
+                    <div class="lang-name"><span class="dot-blue"></span>🇺🇦 Назва (УКР)</div>
+                    <button class="copy-btn" onclick="copyText('nameUA', this)">Скопировать</button>
+                </div>
+                <textarea id="nameUA" readonly class="name-ta"></textarea>
+            </div>
+            <div class="lang-block" id="blockNameRU">
+                <div class="lang-header name-ru">
+                    <div class="lang-name"><span class="dot-green"></span>🇷🇺 Название (РУС)</div>
+                    <button class="copy-btn" onclick="copyText('nameRU', this)">Скопировать</button>
+                </div>
+                <textarea id="nameRU" readonly class="name-ta"></textarea>
             </div>
         </div>
 
@@ -541,50 +567,61 @@ async function callGemini(prompt) {
 }
 
 async function generateName() {
-    const url = document.getElementById('link').value.trim();
-    if (!url) { setStatus('⚠️ Вставьте ссылку!', 'err'); return; }
+    const textUA  = document.getElementById('resUA').value;
+    const textRU  = document.getElementById('resRU').value;
+    const seoUA   = document.getElementById('seoUA').value;
+    const seoRU   = document.getElementById('seoRU').value;
 
-    const btn = document.getElementById('nameBtn');
-    btn.disabled = true;
-    hideBlock('blockNameUA'); hideBlock('blockNameRU');
-
-    setStatus('⏳ Парсинг страницы товара...', '');
-    const pageText = await fetchPageText(url);
-    
-    if (!pageText) {
-        setStatus('❌ Не удалось прочитать данные с сайта.', 'err');
-        btn.disabled = false;
+    if (!textUA || !textRU) {
+        setStatus('⚠️ Сначала сгенерируйте описание!', 'err');
         return;
     }
 
-    const prompt = `ТЕКСТ СТРАНИЦЫ ТОВАРА:
-${pageText}
+    const btn = document.getElementById('nameBtn');
+    btn.disabled = true;
+    hideBlock('blockNameUA');
+    hideBlock('blockNameRU');
+    document.getElementById('nameSectionHeader').classList.remove('visible');
 
-Твоя задача — улучшить наименование товара для Google-поиска.
+    const prompt = `У тебя есть готовое описание товара и SEO-ключи на двух языках.
+
+ОПИСАНИЕ (УКР):
+${textUA}
+
+ОПИСАНИЕ (РУС):
+${textRU}
+
+${seoUA ? `SEO-КЛЮЧИ (УКР):\n${seoUA}\n` : ''}
+${seoRU ? `SEO-КЛЮЧИ (РУС):\n${seoRU}\n` : ''}
+
+Твоя задача — составить SEO-оптимальное наименование товара для Google-поиска, опираясь на описание и наиболее частотные ключевые слова.
 
 ПРАВИЛА:
-1. Формула: Тип товара + Название модели + Характеристики + Бренд.
-2. ВАЖНО: Название модели (например, Пикник) — ОБЯЗАТЕЛЬНАЯ часть названия, не удаляй ее!
-3. Запрещены любые кавычки (ни " ", ни « », ни ‘ ’).
-4. Запрещены рекламные слова.
-5. Бренд ставится в самом конце.
+1. Формула: Тип товара + Название модели + Ключевые характеристики + Бренд.
+2. Название модели (например, Пікнік / Пикник) — ОБЯЗАТЕЛЬНАЯ часть, не удаляй её!
+3. Включи 1-2 наиболее релевантных поисковых ключа из списка SEO-ключей.
+4. Запрещены любые кавычки (ни " ", ни « », ни ' ').
+5. Запрещены рекламные слова.
+6. Бренд ставится в самом конце.
+7. Длина: 60-80 символов.
 
-Пример: если товар называется Комплект "Пікнік", ты пишешь: Комплект для пікніка Пікнік стіл та 4 стільці Vitan.
+Пример: Комплект для пікніка Пікнік стіл та 4 стільці складаний Vitan.
 
 Выведи СТРОГО в формате:
-UA: [улучшенное название на украинском]
-RU: [улучшенное название на русском]
+UA: [оптимальное название на украинском]
+RU: [оптимальное название на русском]
 
 Никаких пояснений, только две строки с префиксами UA: и RU:`;
 
     const res = await callGemini(prompt);
     if (res.ok) {
         const lines = res.text.split('\n');
-        document.getElementById('nameUA').value = lines.find(l => l.startsWith('UA:'))?.replace('UA:', '').trim().replace(/["«»“”]/g, '') || '';
-        document.getElementById('nameRU').value = lines.find(l => l.startsWith('RU:'))?.replace('RU:', '').trim().replace(/["«»“”]/g, '') || '';
+        document.getElementById('nameUA').value = lines.find(l => l.startsWith('UA:'))?.replace('UA:', '').trim().replace(/["«»""]/g, '') || '';
+        document.getElementById('nameRU').value = lines.find(l => l.startsWith('RU:'))?.replace('RU:', '').trim().replace(/["«»""]/g, '') || '';
+        document.getElementById('nameSectionHeader').classList.add('visible');
         showBlock('blockNameUA');
         showBlock('blockNameRU');
-        setStatus('✅ Название улучшено!', 'ok');
+        setStatus('✅ Наименование улучшено!', 'ok');
     } else {
         setStatus('❌ Ошибка при генерации названия.', 'err');
     }
@@ -663,8 +700,11 @@ async function generate() {
     const btn = document.getElementById('genBtn');
     btn.disabled = true;
     document.getElementById('seoBtn').disabled = true;
+    document.getElementById('nameBtn').disabled = true;
     hideBlock('blockUA'); hideBlock('blockRU');
     hideBlock('blockSEO-UA'); hideBlock('blockSEO-RU');
+    hideBlock('blockNameUA'); hideBlock('blockNameRU');
+    document.getElementById('nameSectionHeader').classList.remove('visible');
     document.getElementById('resUA').value = '';
     document.getElementById('resRU').value = '';
 
@@ -689,11 +729,7 @@ async function generate() {
             document.getElementById('resRU').value = ru.text;
             showBlock('blockRU');
             document.getElementById('seoBtn').disabled = false;
-            
-            const nameUA = document.getElementById('nameUA').value;
-            
-            
-            setStatus('🎉 Описания готовы и сохранены в таблицу!', 'ok');
+            setStatus('✅ Описание готово! Следующий шаг — SEO-ключи.', 'ok');
         } else {
             setStatus('⚠️ УКР готово, но произошла ошибка при генерации РУС.', '');
         }
@@ -714,6 +750,7 @@ async function generateSEO() {
 
     const btn = document.getElementById('seoBtn');
     btn.disabled = true;
+    document.getElementById('nameBtn').disabled = true;
     setStatus('⏳ Генерирую SEO-ключи...', '');
 
     const ua = await callGemini("Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:\n\n" + textUA);
@@ -726,7 +763,9 @@ async function generateSEO() {
     if (ru.ok) {
         document.getElementById('seoRU').value = ru.text;
         showBlock('blockSEO-RU');
-        setStatus('✅ SEO-ключи готовы!', 'ok');
+        // Unlock name button after SEO is ready
+        document.getElementById('nameBtn').disabled = false;
+        setStatus('✅ SEO-ключи готовы! Теперь можно улучшить наименование.', 'ok');
     } else {
         setStatus('❌ Ошибка при генерации SEO.', 'err');
     }
@@ -775,7 +814,6 @@ function clearNotes() {
     document.getElementById('managerNotes').value = ''; 
     onNotesChange();
 }
-
 </script>
 </body>
 </html>
