@@ -691,7 +691,7 @@ async function generate() {
             document.getElementById('seoBtn').disabled = false;
             
             const nameUA = document.getElementById('nameUA').value;
-            await saveToSheet(url, nameUA, ua.text, ru.text);
+            
             
             setStatus('🎉 Описания готовы и сохранены в таблицу!', 'ok');
         } else {
@@ -776,23 +776,6 @@ function clearNotes() {
     onNotesChange();
 }
 
-    async function saveToSheet(url, nameUA, resUA, resRU) {
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbwPb2paaVWRZbIUzuLFZOnYOyAqvOlNYiLzbxP26R2E1NtV741jMLEZHVIV0G18g67_bg/exec";
-    try {
-        await fetch(webAppUrl, {
-            method: 'POST',
-            mode: 'no-cors', // Это важно, чтобы обойти CORS в таблицах
-            body: JSON.stringify({
-                url: url,
-                nameUA: nameUA,
-                resUA: resUA,
-                resRU: resRU
-            })
-        });
-    } catch (e) {
-        console.error("Ошибка сохранения:", e);
-    }
-}
 </script>
 </body>
 </html>
