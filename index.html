@@ -928,15 +928,11 @@ async function autoRun() {
 
     // ── ШАГ 2: SEO-ключи ─────────────────────────────────────────
     setProgress(50, 'SEO-ключи УКР...');
-    const seoUARes = await callGemini("Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:
-
-" + ua.text);
+    const seoUARes = await callGemini("Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:\n\n" + ua.text);
     if (seoUARes.ok) { document.getElementById('seoUA').value = seoUARes.text; showBlock('blockSEO-UA'); }
 
     setProgress(65, 'SEO-ключи РУС...');
-    const seoRURes = await callGemini("Напиши 15-20 релевантных SEO-ключей для продвижения этого текста. Выведи их просто через запятую, без нумерации и списков:
-
-" + ru.text);
+    const seoRURes = await callGemini("Напиши 15-20 релевантных SEO-ключей для продвижения этого текста. Выведи их просто через запятую, без нумерации и списков:\n\n" + ru.text);
     if (seoRURes.ok) { document.getElementById('seoRU').value = seoRURes.text; showBlock('blockSEO-RU'); }
 
     // ── ШАГ 3: Наименование ───────────────────────────────────────
