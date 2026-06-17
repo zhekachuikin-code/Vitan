@@ -575,20 +575,16 @@ async function callGemini(prompt) {
     }
 }
 
-// Извлекаем артикул отдельным лёгким запросом к Gemini
-async function extractArticle(pageText) {
-    const prompt = `Из текста страницы товара извлеки артикул (код товара, SKU, номер модели).
-Артикул — это уникальный идентификатор товара, обычно состоит из букв и цифр (например: VT-1234, A-456, 00123).
-Выведи ТОЛЬКО сам артикул, без пояснений, без слов "артикул", "код" и т.д.
-Если артикул не найден — выведи: —
-
-ТЕКСТ СТРАНИЦЫ:
-${pageText.slice(0, 4000)}`;
-
-    const res = await callGemini(prompt);
-    if (res.ok) {
-        const cleaned = res.text.trim().replace(/^(артикул|код|sku|арт\.?)[:\s]*/i, '').trim();
-        return cleaned || '—';
+// Извлекаем артикул регуляркой из текста страницы
+function extractArticle(pageText) {
+    // Ищем метки артикула и захватываем значение после них
+    const patterns = [
+        /(?:артикул|арт(?:икул)?\.?|код товару|код товара|article|sku|item\s*(?:no|num|#|code))[:\s#]+([A-Za-zА-Яа-яЁёІіЇїЄє0-9][-A-Za-zА-Яа-яЁёІіЇїЄє0-9_.\/]{1,30})/gi,
+    ];
+    for (const re of patterns) {
+        re.lastIndex = 0;
+        const m = re.exec(pageText);
+        if (m && m[1]) return m[1].trim();
     }
     return '—';
 }
@@ -779,14 +775,10 @@ async function generate() {
         return;
     }
 
-    // Параллельно извлекаем артикул и генерируем УКР описание
-    setStatus('⏳ Извлекаю артикул и генерирую описание...', '');
-    const [articleResult, ua] = await Promise.all([
-        extractArticle(pageText),
-        callGemini(buildPrompt(pageText, 'ukrainian', managerNotes))
-    ]);
-
-    showArticle(articleResult);
+    // Извлекаем артикул из текста страницы (синхронно) и генерируем описание
+    setStatus('⏳ Извлекаю артикул і генерирую описание...', '');
+    showArticle(extractArticle(pageText));
+    const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes));
 
     if (ua.ok) {
         document.getElementById('resUA').value = ua.text;
