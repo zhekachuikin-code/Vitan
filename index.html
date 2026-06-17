@@ -177,6 +177,12 @@
         .btn-blue    { background: linear-gradient(135deg, #4f9ef8, #2b6cb0); color: #fff; }
         .btn-seo     { background: linear-gradient(135deg, #f0c44a, #c08820); color: #0d0f12; }
         .btn-sheets  { background: linear-gradient(135deg, #34d399, #059669); color: #0d0f12; }
+        .btn-auto    { background: linear-gradient(135deg, #c084fc, #7c3aed); color: #fff; position: relative; overflow: hidden; }
+        .btn-auto .auto-progress {
+            position: absolute; left: 0; top: 0; height: 100%;
+            background: rgba(255,255,255,0.15); width: 0%;
+            transition: width 0.4s ease; pointer-events: none;
+        }
 
         .action-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
 
@@ -412,6 +418,7 @@
             </div>
 
             <div class="action-row">
+                <button class="btn btn-auto"    id="autoBtn" onclick="autoRun()">⚡ АВТО</button>
                 <button class="btn btn-primary" id="genBtn"  onclick="generate()">✨ Создать описание</button>
                 <button class="btn btn-seo"     id="seoBtn"  onclick="generateSEO()"  disabled>🔑 SEO-ключи</button>
                 <button class="btn btn-blue"    id="nameBtn" onclick="generateName()" disabled>✦ Улучшить название</button>
@@ -863,6 +870,165 @@ function onNotesChange() {
 function clearNotes() {
     document.getElementById('managerNotes').value = '';
     onNotesChange();
+}
+
+async function autoRun() {
+    const url = document.getElementById('link').value.trim();
+    if (!url) { setStatus('⚠️ Вставьте ссылку на товар!', 'err'); return; }
+    if (!url.startsWith('http')) { setStatus('⚠️ Ссылка должна начинаться с http://', 'err'); return; }
+
+    const autoBtn = document.getElementById('autoBtn');
+    const setProgress = (pct, label) => {
+        autoBtn.innerHTML = `<span class="auto-progress" style="width:${pct}%"></span>⚡ ${label}`;
+        autoBtn.disabled = true;
+    };
+
+    // Блокируем все кнопки
+    ['genBtn','seoBtn','nameBtn','saveBtn'].forEach(id => document.getElementById(id).disabled = true);
+
+    // ── ШАГ 1: Описание ──────────────────────────────────────────
+    setProgress(5, 'Парсинг...');
+    const managerNotes = document.getElementById('managerNotes').value.trim();
+    hideBlock('blockUA'); hideBlock('blockRU');
+    hideBlock('blockSEO-UA'); hideBlock('blockSEO-RU');
+    hideBlock('blockNameUA'); hideBlock('blockNameRU');
+    document.getElementById('nameSectionHeader').classList.remove('visible');
+    document.getElementById('resUA').value = '';
+    document.getElementById('resRU').value = '';
+    showArticle('');
+
+    const pageText = await fetchPageText(url);
+    if (!pageText) {
+        setStatus('❌ Не удалось прочитать данные с сайта.', 'err');
+        autoBtn.innerHTML = '⚡ АВТО'; autoBtn.disabled = false;
+        return;
+    }
+
+    showArticle(extractArticle(pageText));
+
+    setProgress(15, 'Описание УКР...');
+    const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes));
+    if (!ua.ok) {
+        setStatus('❌ Ошибка при генерации описания УКР.', 'err');
+        autoBtn.innerHTML = '⚡ АВТО'; autoBtn.disabled = false;
+        return;
+    }
+    document.getElementById('resUA').value = ua.text;
+    showBlock('blockUA');
+
+    setProgress(30, 'Описание РУС...');
+    const ru = await callGemini(buildPrompt(pageText, 'russian', managerNotes));
+    if (!ru.ok) {
+        setStatus('❌ Ошибка при генерации описания РУС.', 'err');
+        autoBtn.innerHTML = '⚡ АВТО'; autoBtn.disabled = false;
+        return;
+    }
+    document.getElementById('resRU').value = ru.text;
+    showBlock('blockRU');
+
+    // ── ШАГ 2: SEO-ключи ─────────────────────────────────────────
+    setProgress(50, 'SEO-ключи УКР...');
+    const seoUARes = await callGemini("Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:
+
+" + ua.text);
+    if (seoUARes.ok) { document.getElementById('seoUA').value = seoUARes.text; showBlock('blockSEO-UA'); }
+
+    setProgress(65, 'SEO-ключи РУС...');
+    const seoRURes = await callGemini("Напиши 15-20 релевантных SEO-ключей для продвижения этого текста. Выведи их просто через запятую, без нумерации и списков:
+
+" + ru.text);
+    if (seoRURes.ok) { document.getElementById('seoRU').value = seoRURes.text; showBlock('blockSEO-RU'); }
+
+    // ── ШАГ 3: Наименование ───────────────────────────────────────
+    setProgress(80, 'Наименование...');
+    const namePrompt = `У тебя есть готовое описание товара и SEO-ключи на двух языках.
+
+ОПИСАНИЕ (УКР):
+${ua.text}
+
+ОПИСАНИЕ (РУС):
+${ru.text}
+
+${seoUARes.ok ? 'SEO-КЛЮЧИ (УКР):
+' + seoUARes.text + '
+' : ''}
+${seoRURes.ok ? 'SEO-КЛЮЧИ (РУС):
+' + seoRURes.text + '
+' : ''}
+
+Твоя задача — заполнить шаблон наименования товара. Извлеки нужные данные из описания и SEO-ключей.
+
+ШАГ 1 — Извлеки из описания:
+A = Тип товара (например: крісло, стіл, намет, підставка)
+B = Название модели (например: Директор Лайт, Пікнік, Очерет) — ОБЯЗАТЕЛЬНО, не пропускай!
+C = Торговая марка / бренд (например: Vitan, Tramp, Nash)
+D = 1-2 ключевые характеристики из SEO-ключей (например: розкладне, з регульованою спинкою)
+E = Цвет или вариант (если указан в описании, например: Очерет синій, Зелений)
+F = Ткань (если указана в описании, например: текстилен, бязь и т.д)
+G = диаметр труб и предельная масса (если указаны в описании, например: d-22, d-25, до 120кг, до 140 кг)
+
+ШАГ 2 — Собери название по шаблону СТРОГО в таком порядке:
+[A] [B] [C] [D] [G] ([F, E])
+
+Если цвет/вариант отсутствует — скобки не нужны.
+
+ЗАПРЕЩЕНО:
+- Ставить бренд [C] после характеристик [D] — только между [B] и [D]!
+- Использовать кавычки любого вида
+- Использовать рекламные слова
+
+ЭТАЛОННЫЙ ПРИМЕР (точно такая структура):
+крісло для риболовлі | Директор Лайт | Vitan | з регульованою спинкою | (Очерет синій)
+→ Крісло для риболовлі Директор Лайт Vitan з регульованою спинкою (Очерет синій)
+
+Выведи СТРОГО в формате:
+UA: [название на украинском по шаблону]
+RU: [название на русском по шаблону]
+
+Никаких пояснений, только две строки с префиксами UA: и RU:`;
+
+    const nameRes = await callGemini(namePrompt);
+    if (nameRes.ok) {
+        const lines = nameRes.text.split('
+');
+        document.getElementById('nameUA').value = lines.find(l => l.startsWith('UA:'))?.replace('UA:', '').trim().replace(/["«»""]/g, '') || '';
+        document.getElementById('nameRU').value = lines.find(l => l.startsWith('RU:'))?.replace('RU:', '').trim().replace(/["«»""]/g, '') || '';
+        document.getElementById('nameSectionHeader').classList.add('visible');
+        showBlock('blockNameUA');
+        showBlock('blockNameRU');
+    }
+
+    // ── ШАГ 4: Сохранение в таблицу ──────────────────────────────
+    setProgress(93, 'Сохраняю...');
+    try {
+        await fetch(SHEETS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                article: currentArticle,
+                url:     url,
+                nameUA:  document.getElementById('nameUA').value || '',
+                nameRU:  document.getElementById('nameRU').value || '',
+                descUA:  ua.text,
+                descRU:  ru.text,
+                seoUA:   seoUARes.ok ? seoUARes.text : '',
+                seoRU:   seoRURes.ok ? seoRURes.text : '',
+            })
+        });
+    } catch(e) { /* no-cors — игнорируем */ }
+
+    // Финал
+    setProgress(100, 'Готово!');
+    setStatus('🎉 Всё готово и сохранено в таблицу!', 'ok');
+    setTimeout(() => {
+        autoBtn.innerHTML = '⚡ АВТО';
+        autoBtn.disabled = false;
+        ['genBtn'].forEach(id => document.getElementById(id).disabled = false);
+        document.getElementById('seoBtn').disabled  = false;
+        document.getElementById('nameBtn').disabled = false;
+        document.getElementById('saveBtn').disabled = false;
+    }, 1500);
 }
 </script>
 </body>
