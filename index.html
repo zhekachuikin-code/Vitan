@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Генератор описаний товаров</title>
+    <title>Генератор описів товарів</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -432,52 +432,52 @@
 <body>
 
 <div class="topbar">
-    <div class="topbar-logo">✦ Генератор описаний <span>/ SEO-копирайтинг</span></div>
+    <div class="topbar-logo">✦ Генератор описів <span>/ SEO-копірайтинг</span></div>
     <div class="topbar-badge">Gemini · УКР + РУС</div>
 </div>
 
 <div class="layout">
 
     <aside class="sidebar">
-        <div class="sidebar-title">📖 Как пользоваться</div>
+        <div class="sidebar-title">📖 Як користуватись</div>
         <div style="display:flex;flex-direction:column;gap:14px;">
             <div class="guide-step">
                 <div class="step-num">1</div>
-                <div class="step-body"><h4>Вставьте ссылку на товар</h4><p>Полный URL со страницы товара на любом маркетплейсе.</p></div>
+                <div class="step-body"><h4>Вставте посилання на товар</h4><p>Повний URL зі сторінки товару на будь-якому маркетплейсі.</p></div>
             </div>
             <div class="guide-step">
                 <div class="step-num">2</div>
-                <div class="step-body"><h4>Добавьте примечания</h4><p>Бренд, акции, доставка, гарантия — AI учтёт их в описании.</p></div>
+                <div class="step-body"><h4>Додайте примітки</h4><p>Бренд, акції, доставка, гарантія — AI врахує їх в описі.</p></div>
             </div>
             <div class="guide-step">
                 <div class="step-num">3</div>
-                <div class="step-body"><h4>⚡ Авто — одна кнопка</h4><p>Запускает весь цикл: описание → SEO → название → таблица автоматически.</p></div>
+                <div class="step-body"><h4>⚡ Авто — одна кнопка</h4><p>Запускає весь цикл: опис → SEO → назва → таблиця автоматично.</p></div>
             </div>
             <div class="guide-step">
                 <div class="step-num">4</div>
-                <div class="step-body"><h4>Или вручную по шагам</h4><p>Каждую кнопку можно нажать отдельно для контроля на каждом этапе.</p></div>
+                <div class="step-body"><h4>Або вручну по кроках</h4><p>Кожну кнопку можна натиснути окремо для контролю на кожному етапі.</p></div>
             </div>
             <div class="guide-step">
                 <div class="step-num">5</div>
-                <div class="step-body"><h4>Сохраните в таблицу</h4><p>Кнопка «📊 В таблицу» запишет все данные вместе с артикулом.</p></div>
+                <div class="step-body"><h4>Збережіть у таблицю</h4><p>Кнопка «📊 До таблиці» запише всі дані разом з артикулом.</p></div>
             </div>
         </div>
         <div class="guide-tip">
-            <div class="tip-label">💡 Советы</div>
-            <p>Товар должен быть публично доступен (без авторизации).</p>
-            <p>⚡ Авто занимает ~2-3 минуты полностью.</p>
+            <div class="tip-label">💡 Поради</div>
+            <p>Товар має бути публічно доступний (без авторизації).</p>
+            <p>⚡ Авто займає ~2-3 хвилини повністю.</p>
         </div>
     </aside>
 
     <main class="main">
 
         <div class="page-head">
-            <h1>Генератор описаний товаров</h1>
-            <p>Чистый текст · SEO-ключи · Улучшенное название на двух языках</p>
+            <h1>Генератор описів товарів</h1>
+            <p>Чистий текст · SEO-ключі · Покращена назва двома мовами</p>
         </div>
 
         <div class="card">
-            <div class="card-label">Ссылка на товар</div>
+            <div class="card-label">Посилання на товар</div>
             <div class="input-row">
                 <input type="text" id="link" placeholder="https://example.com/product-page">
             </div>
@@ -489,15 +489,15 @@
 
             <div class="action-row">
                 <button class="btn btn-auto"    id="autoBtn"  onclick="runAuto()">⚡ Авто</button>
-                <button class="btn btn-primary" id="genBtn"   onclick="generate()">✨ Создать описание</button>
-                <button class="btn btn-seo"     id="seoBtn"   onclick="generateSEO()"  disabled>🔑 SEO-ключи</button>
-                <button class="btn btn-blue"    id="nameBtn"  onclick="generateName()" disabled>✦ Улучшить название</button>
-                <button class="btn btn-sheets"  id="saveBtn"  onclick="saveToSheets()" disabled>📊 В таблицу</button>
+                <button class="btn btn-primary" id="genBtn"   onclick="generate()">✨ Створити опис</button>
+                <button class="btn btn-seo"     id="seoBtn"   onclick="generateSEO()"  disabled>🔑 SEO-ключі</button>
+                <button class="btn btn-blue"    id="nameBtn"  onclick="generateName()" disabled>✦ Покращити назву</button>
+                <button class="btn btn-sheets"  id="saveBtn"  onclick="saveToSheets()" disabled>📊 До таблиці</button>
                 <a href="https://docs.google.com/spreadsheets/d/1C5DXMyqQ_kPMIg8M8r5H16Gs0jUXHVQtXXB8YOS_9Pc/edit"
                    target="_blank"
                    class="btn"
                    style="background:var(--surface2);color:var(--text-muted);border:1px solid var(--border2);text-decoration:none;">
-                    📋 Открыть таблицу
+                    📋 Відкрити таблицю
                 </a>
             </div>
             <div id="status"></div>
@@ -507,28 +507,28 @@
         <div id="autoProgress">
             <div class="ap-header">
                 <span class="ap-title">⚡ Авто-режим</span>
-                <button class="ap-cancel" id="apCancelBtn" onclick="cancelAuto()">✕ Отмена</button>
+                <button class="ap-cancel" id="apCancelBtn" onclick="cancelAuto()">✕ Скасувати</button>
             </div>
             <div class="ap-steps">
                 <div class="ap-step" id="apStep0">
                     <div class="ap-dot" id="apDot0">1</div>
-                    <span>Парсинг страницы товара</span>
+                    <span>Парсинг сторінки товару</span>
                 </div>
                 <div class="ap-step" id="apStep1">
                     <div class="ap-dot" id="apDot1">2</div>
-                    <span>Описание УКР + РУС</span>
+                    <span>Опис УКР + РУС</span>
                 </div>
                 <div class="ap-step" id="apStep2">
                     <div class="ap-dot" id="apDot2">3</div>
-                    <span>SEO-ключи УКР + РУС</span>
+                    <span>SEO-ключі УКР + РУС</span>
                 </div>
                 <div class="ap-step" id="apStep3">
                     <div class="ap-dot" id="apDot3">4</div>
-                    <span>Улучшение наименования</span>
+                    <span>Покращення найменування</span>
                 </div>
                 <div class="ap-step" id="apStep4">
                     <div class="ap-dot" id="apDot4">5</div>
-                    <span>Сохранение в таблицу</span>
+                    <span>Збереження до таблиці</span>
                 </div>
             </div>
             <div class="ap-bar-wrap">
@@ -542,36 +542,36 @@
                 <div class="notes-header-left">
                     <span style="font-size:15px">📋</span>
                     <div>
-                        <div class="notes-header-title">Примечания менеджера</div>
-                        <div class="notes-header-hint">Бренд, акции, доставка, гарантия...</div>
+                        <div class="notes-header-title">Примітки менеджера</div>
+                        <div class="notes-header-hint">Бренд, акції, доставка, гарантія...</div>
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;">
-                    <span class="notes-badge" id="notesBadge" style="display:none">Заполнено</span>
+                    <span class="notes-badge" id="notesBadge" style="display:none">Заповнено</span>
                     <span class="notes-toggle" id="notesArrow">▼</span>
                 </div>
             </div>
             <div class="notes-body" id="notesBody">
                 <div>
-                    <div class="chips-label" style="margin-bottom:7px;">⚡ БЫСТРАЯ ВСТАВКА</div>
+                    <div class="chips-label" style="margin-bottom:7px;">⚡ ШВИДКА ВСТАВКА</div>
                     <div class="notes-chips">
                         <span class="chip" onclick="insertChip('brand')">🏷️ Бренд</span>
-                        <span class="chip" onclick="insertChip('promo')">🎁 Акция</span>
+                        <span class="chip" onclick="insertChip('promo')">🎁 Акція</span>
                         <span class="chip" onclick="insertChip('delivery')">🚚 Доставка</span>
-                        <span class="chip" onclick="insertChip('warranty')">🛡️ Гарантия</span>
+                        <span class="chip" onclick="insertChip('warranty')">🛡️ Гарантія</span>
                         <span class="chip" onclick="insertChip('assembly')">🔧 Монтаж</span>
-                        <span class="chip" onclick="insertChip('gift')">🎀 Подарок</span>
-                        <span class="chip" onclick="insertChip('stock')">📦 Наличие</span>
+                        <span class="chip" onclick="insertChip('gift')">🎀 Подарунок</span>
+                        <span class="chip" onclick="insertChip('stock')">📦 Наявність</span>
                         <span class="chip" onclick="insertChip('payment')">💳 Оплата</span>
-                        <span class="chip" onclick="insertChip('custom')">✏️ Своё</span>
+                        <span class="chip" onclick="insertChip('custom')">✏️ Своє</span>
                     </div>
                 </div>
                 <textarea id="managerNotes"
-                    placeholder="Введите примечания или используйте быструю вставку выше...&#10;&#10;Пример:&#10;Бренд: Vitan&#10;Акция: -15% до конца месяца&#10;Доставка: бесплатно от 1500 грн"
+                    placeholder="Введіть примітки або використайте швидку вставку вище...&#10;&#10;Приклад:&#10;Бренд: Vitan&#10;Акція: -15% до кінця місяця&#10;Доставка: безкоштовно від 1500 грн"
                     oninput="onNotesChange()"></textarea>
                 <div class="notes-footer">
-                    <span class="notes-chars" id="notesChars">0 символов</span>
-                    <button class="notes-clear" onclick="clearNotes()">✕ Очистить</button>
+                    <span class="notes-chars" id="notesChars">0 символів</span>
+                    <button class="notes-clear" onclick="clearNotes()">✕ Очистити</button>
                 </div>
             </div>
         </div>
@@ -580,14 +580,14 @@
             <div class="lang-block" id="blockUA">
                 <div class="lang-header ua">
                     <div class="lang-name"><span class="dot-blue"></span>🇺🇦 Опис (УКР)</div>
-                    <button class="copy-btn" onclick="copyText('resUA', this)">Скопировать</button>
+                    <button class="copy-btn" onclick="copyText('resUA', this)">Копіювати</button>
                 </div>
                 <textarea id="resUA" readonly></textarea>
             </div>
             <div class="lang-block" id="blockRU">
                 <div class="lang-header ru">
                     <div class="lang-name"><span class="dot-green"></span>🇷🇺 Описание (РУС)</div>
-                    <button class="copy-btn" onclick="copyText('resRU', this)">Скопировать</button>
+                    <button class="copy-btn" onclick="copyText('resRU', this)">Копіювати</button>
                 </div>
                 <textarea id="resRU" readonly></textarea>
             </div>
@@ -597,21 +597,21 @@
             <div class="lang-block" id="blockSEO-UA">
                 <div class="lang-header seo-ua">
                     <div class="lang-name"><span class="dot-gold"></span>🔑 SEO Ключі (УКР)</div>
-                    <button class="copy-btn" onclick="copyText('seoUA', this)">Скопировать</button>
+                    <button class="copy-btn" onclick="copyText('seoUA', this)">Копіювати</button>
                 </div>
                 <textarea id="seoUA" readonly class="seo-ta"></textarea>
             </div>
             <div class="lang-block" id="blockSEO-RU">
                 <div class="lang-header seo-ru">
                     <div class="lang-name"><span class="dot-violet"></span>🔑 SEO Ключи (РУС)</div>
-                    <button class="copy-btn" onclick="copyText('seoRU', this)">Скопировать</button>
+                    <button class="copy-btn" onclick="copyText('seoRU', this)">Копіювати</button>
                 </div>
                 <textarea id="seoRU" readonly class="seo-ta"></textarea>
             </div>
         </div>
 
         <div class="name-section-header" id="nameSectionHeader">
-            <span class="name-section-label">✦ SEO-оптимальное наименование</span>
+            <span class="name-section-label">✦ SEO-оптимальна назва</span>
             <div class="name-section-line"></div>
         </div>
 
@@ -619,20 +619,20 @@
             <div class="lang-block" id="blockNameUA">
                 <div class="lang-header name-ua">
                     <div class="lang-name"><span class="dot-blue"></span>🇺🇦 Назва (УКР)</div>
-                    <button class="copy-btn" onclick="copyText('nameUA', this)">Скопировать</button>
+                    <button class="copy-btn" onclick="copyText('nameUA', this)">Копіювати</button>
                 </div>
                 <textarea id="nameUA" readonly class="name-ta"></textarea>
             </div>
             <div class="lang-block" id="blockNameRU">
                 <div class="lang-header name-ru">
                     <div class="lang-name"><span class="dot-green"></span>🇷🇺 Название (РУС)</div>
-                    <button class="copy-btn" onclick="copyText('nameRU', this)">Скопировать</button>
+                    <button class="copy-btn" onclick="copyText('nameRU', this)">Копіювати</button>
                 </div>
                 <textarea id="nameRU" readonly class="name-ta"></textarea>
             </div>
         </div>
 
-        <div class="foot-note">Все поля доступны только для чтения — используйте кнопку «Скопировать» в каждом блоке.</div>
+        <div class="foot-note">Усі поля доступні лише для читання — використовуйте кнопку «Копіювати» в кожному блоці.</div>
     </main>
 </div>
 
@@ -729,15 +729,15 @@ function apReset() {
 /* ─── отмена авто ─── */
 function cancelAuto() {
     autoCancelled = true;
-    apSetMsg('⛔ Отменено пользователем');
+    apSetMsg('⛔ Скасовано користувачем');
     document.getElementById('apCancelBtn').disabled = true;
 }
 
 /* ─── АВТО-РЕЖИМ ─── */
 async function runAuto() {
     const url = document.getElementById('link').value.trim();
-    if (!url) { setStatus('⚠️ Вставьте ссылку на товар!', 'err'); return; }
-    if (!url.startsWith('http')) { setStatus('⚠️ Ссылка должна начинаться с http://', 'err'); return; }
+    if (!url) { setStatus('⚠️ Вставте посилання на товар!', 'err'); return; }
+    if (!url.startsWith('http')) { setStatus('⚠️ Посилання має починатись з http://', 'err'); return; }
 
     autoCancelled = false;
     lockAll(true);
@@ -759,15 +759,15 @@ async function runAuto() {
     /* ШАГ 0 — парсинг */
     apSetStep(0, 'active');
     apSetBar(5);
-    apSetMsg('⏳ Загружаю страницу товара...');
+    apSetMsg('⏳ Завантажую сторінку товару...');
 
     const pageText = await fetchPageText(url);
     if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
 
     if (!pageText) {
         apSetStep(0, 'error');
-        apSetMsg('❌ Не удалось прочитать страницу товара');
-        setStatus('❌ Не удалось прочитать данные с сайта.', 'err');
+        apSetMsg('❌ Не вдалося прочитати сторінку товару');
+        setStatus('❌ Не вдалося прочитати дані з сайту.', 'err');
         lockAll(false); document.getElementById('autoBtn').disabled = false;
         return;
     }
@@ -777,28 +777,28 @@ async function runAuto() {
 
     /* ШАГ 1 — описание УКР + РУС */
     apSetStep(1, 'active');
-    apSetMsg('⏳ Генерирую описание на украинском...');
+    apSetMsg('⏳ Генерую опис українською...');
 
     const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes));
     if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
     if (!ua.ok) {
         apSetStep(1, 'error');
-        apSetMsg('❌ Ошибка при генерации УКР описания');
-        setStatus('❌ Ошибка при генерации описания.', 'err');
+        apSetMsg('❌ Помилка при генерації УКР опису');
+        setStatus('❌ Помилка при генерації опису.', 'err');
         lockAll(false); document.getElementById('autoBtn').disabled = false;
         return;
     }
     document.getElementById('resUA').value = ua.text;
     showBlock('blockUA');
     apSetBar(28);
-    apSetMsg('⏳ Перевожу описание на русский...');
+    apSetMsg('⏳ Перекладаю опис на російську...');
 
     const ru = await callGemini(`Переведи следующий текст с украинского на русский язык. Сохрани структуру, заголовки и форматирование в точности. Выведи только перевод без пояснений:\n\n${ua.text}`);
     if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
     if (!ru.ok) {
         apSetStep(1, 'error');
-        apSetMsg('❌ Ошибка при переводе РУС описания');
-        setStatus('⚠️ УКР готово, но ошибка перевода РУС.', '');
+        apSetMsg('❌ Помилка при перекладі РУС опису');
+        setStatus('⚠️ УКР готово, але помилка перекладу РУС.', '');
         lockAll(false); document.getElementById('autoBtn').disabled = false;
         return;
     }
@@ -809,14 +809,14 @@ async function runAuto() {
 
     /* ШАГ 2 — SEO */
     apSetStep(2, 'active');
-    apSetMsg('⏳ Генерирую SEO-ключи (УКР)...');
+    apSetMsg('⏳ Генерую SEO-ключі (УКР)...');
 
     const seoUaRes = await callGemini("Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:\n\n" + ua.text);
     if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
     if (seoUaRes.ok) { document.getElementById('seoUA').value = seoUaRes.text; showBlock('blockSEO-UA'); }
 
     apSetBar(54);
-    apSetMsg('⏳ Перевожу SEO-ключи на русский...');
+    apSetMsg('⏳ Перекладаю SEO-ключі на російську...');
 
     const seoRuRes = await callGemini(`Переведи следующие SEO-ключи с украинского на русский язык. Сохрани формат — через запятую. Выведи только перевод без пояснений:\n\n${seoUaRes.text}`);
     if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
@@ -827,7 +827,7 @@ async function runAuto() {
 
     /* ШАГ 3 — название */
     apSetStep(3, 'active');
-    apSetMsg('⏳ Улучшаю наименование...');
+    apSetMsg('⏳ Покращую найменування...');
 
     const namePrompt = buildNamePrompt(ua.text, ru.text, seoUaRes.text, seoRuRes.text);
     const nameRes = await callGemini(namePrompt);
@@ -848,7 +848,7 @@ async function runAuto() {
 
     /* ШАГ 4 — сохранение */
     apSetStep(4, 'active');
-    apSetMsg('⏳ Сохраняю в Google Таблицу...');
+    apSetMsg('⏳ Зберігаю до Google Таблиці...');
 
     try {
         await fetch(SHEETS_URL, {
@@ -868,12 +868,12 @@ async function runAuto() {
         });
         apSetStep(4, 'done');
         apSetBar(100);
-        apSetMsg('✅ Всё готово! Данные сохранены в таблицу.');
-        setStatus(`✅ Авто-режим завершён! Артикул: ${currentArticle}`, 'ok');
+        apSetMsg('✅ Все готово! Дані збережено до таблиці.');
+        setStatus(`✅ Авто-режим завершено! Артикул: ${currentArticle}`, 'ok');
     } catch(e) {
         apSetStep(4, 'error');
-        apSetMsg('⚠️ Сохранено локально, ошибка записи в таблицу.');
-        setStatus('⚠️ Готово, но ошибка сохранения в таблицу.', '');
+        apSetMsg('⚠️ Збережено локально, помилка запису до таблиці.');
+        setStatus('⚠️ Готово, але помилка збереження до таблиці.', '');
     }
 
     /* разблокируем только авто и ручные кнопки */
@@ -885,8 +885,8 @@ async function runAuto() {
 }
 
 function apFinishCancelled() {
-    apSetMsg('⛔ Авто-режим отменён');
-    setStatus('⛔ Авто-режим отменён.', '');
+    apSetMsg('⛔ Авто-режим скасовано');
+    setStatus('⛔ Авто-режим скасовано.', '');
 }
 
 /* ─── построение промпта для названия ─── */
@@ -938,7 +938,7 @@ RU: [переведи UA название на русский язык]
 async function saveToSheets() {
     const btn = document.getElementById('saveBtn');
     btn.disabled = true;
-    setStatus('⏳ Сохраняю в таблицу...', '');
+    setStatus('⏳ Зберігаю до таблиці...', '');
     try {
         await fetch(SHEETS_URL, {
             method: 'POST',
@@ -955,8 +955,8 @@ async function saveToSheets() {
                 seoRU:   document.getElementById('seoRU').value  || '',
             })
         });
-        setStatus('✅ Сохранено в Google Таблицу!', 'ok');
-    } catch(e) { setStatus('❌ Ошибка сохранения.', 'err'); }
+        setStatus('✅ Збережено до Google Таблиці!', 'ok');
+    } catch(e) { setStatus('❌ Помилка збереження.', 'err'); }
     btn.disabled = false;
 }
 
@@ -965,12 +965,12 @@ async function generateName() {
     const textRU = document.getElementById('resRU').value;
     const seoUA  = document.getElementById('seoUA').value;
     const seoRU  = document.getElementById('seoRU').value;
-    if (!textUA || !textRU) { setStatus('⚠️ Сначала сгенерируйте описание!', 'err'); return; }
+    if (!textUA || !textRU) { setStatus('⚠️ Спочатку згенеруйте опис!', 'err'); return; }
     const btn = document.getElementById('nameBtn');
     btn.disabled = true;
     hideBlock('blockNameUA'); hideBlock('blockNameRU');
     document.getElementById('nameSectionHeader').classList.remove('visible');
-    setStatus('⏳ Генерирую наименование...', '');
+    setStatus('⏳ Генерую найменування...', '');
     const res = await callGemini(buildNamePrompt(textUA, textRU, seoUA, seoRU));
     if (res.ok) {
         const lines = res.text.split('\n');
@@ -978,8 +978,8 @@ async function generateName() {
         document.getElementById('nameRU').value = lines.find(l => l.startsWith('RU:'))?.replace('RU:', '').trim().replace(/["«»""]/g, '') || '';
         document.getElementById('nameSectionHeader').classList.add('visible');
         showBlock('blockNameUA'); showBlock('blockNameRU');
-        setStatus('✅ Наименование улучшено!', 'ok');
-    } else { setStatus('❌ Ошибка при генерации названия.', 'err'); }
+        setStatus('✅ Найменування покращено!', 'ok');
+    } else { setStatus('❌ Помилка при генерації назви.', 'err'); }
     btn.disabled = false;
 }
 
@@ -1044,8 +1044,8 @@ ${faqHeader}
 
 async function generate() {
     const url = document.getElementById('link').value.trim();
-    if (!url) { setStatus('⚠️ Вставьте ссылку на товар!', 'err'); return; }
-    if (!url.startsWith('http')) { setStatus('⚠️ Ссылка должна начинаться с http://', 'err'); return; }
+    if (!url) { setStatus('⚠️ Вставте посилання на товар!', 'err'); return; }
+    if (!url.startsWith('http')) { setStatus('⚠️ Посилання має починатись з http://', 'err'); return; }
 
     const managerNotes = document.getElementById('managerNotes').value.trim();
     const btn = document.getElementById('genBtn');
@@ -1061,16 +1061,16 @@ async function generate() {
     document.getElementById('resRU').value = '';
     showArticle('');
 
-    setStatus('⏳ Парсинг страницы товара...', '');
+    setStatus('⏳ Парсинг сторінки товару...', '');
     const pageText = await fetchPageText(url);
 
     if (!pageText) {
-        setStatus('❌ Не удалось прочитать данные с сайта.', 'err');
+        setStatus('❌ Не вдалося прочитати дані з сайту.', 'err');
         btn.disabled = false;
         return;
     }
 
-    setStatus('⏳ Извлекаю артикул і генерирую описание...', '');
+    setStatus('⏳ Витягую артикул і генерую опис...', '');
     showArticle(extractArticle(pageText));
     const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes));
 
@@ -1078,29 +1078,29 @@ async function generate() {
         document.getElementById('resUA').value = ua.text;
         showBlock('blockUA');
 
-        setStatus('⏳ Генерирую РУС описание...', '');
-        setStatus('⏳ Перевожу на русский...', '');
+        setStatus('⏳ Перекладаю на російську...', '');
+        setStatus('⏳ Перекладаю на російську...', '');
         const ru = await callGemini(`Переведи следующий текст с украинского на русский язык. Сохрани структуру, заголовки и форматирование в точности. Выведи только перевод без пояснений:\n\n${ua.text}`);
         if (ru.ok) {
             document.getElementById('resRU').value = ru.text;
             showBlock('blockRU');
             document.getElementById('seoBtn').disabled = false;
-            setStatus(`✅ Описание готово! Артикул: ${currentArticle}. Следующий шаг — SEO-ключи.`, 'ok');
-        } else { setStatus('⚠️ УКР готово, но ошибка перевода РУС.', ''); }
-    } else { setStatus('❌ Ошибка при генерации описания.', 'err'); }
+            setStatus(`✅ Опис готовий! Артикул: ${currentArticle}. Наступний крок — SEO-ключі.`, 'ok');
+        } else { setStatus('⚠️ УКР готово, але помилка перекладу РУС.', ''); }
+    } else { setStatus('❌ Помилка при генерації опису.', 'err'); }
     btn.disabled = false;
 }
 
 async function generateSEO() {
     const textUA = document.getElementById('resUA').value;
     const textRU = document.getElementById('resRU').value;
-    if (!textUA || !textRU) { setStatus('⚠️ Сначала сгенерируйте описание!', 'err'); return; }
+    if (!textUA || !textRU) { setStatus('⚠️ Спочатку згенеруйте опис!', 'err'); return; }
 
     const btn = document.getElementById('seoBtn');
     btn.disabled = true;
     document.getElementById('nameBtn').disabled = true;
     document.getElementById('saveBtn').disabled = true;
-    setStatus('⏳ Генерирую SEO-ключи...', '');
+    setStatus('⏳ Генерую SEO-ключі...', '');
 
     const ua = await callGemini("Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:\n\n" + textUA);
     if (ua.ok) { document.getElementById('seoUA').value = ua.text; showBlock('blockSEO-UA'); }
@@ -1111,15 +1111,15 @@ async function generateSEO() {
         showBlock('blockSEO-RU');
         document.getElementById('nameBtn').disabled = false;
         document.getElementById('saveBtn').disabled = false;
-        setStatus('✅ SEO-ключи готовы! Теперь можно улучшить наименование.', 'ok');
-    } else { setStatus('❌ Ошибка при генерации SEO.', 'err'); }
+        setStatus('✅ SEO-ключі готові! Тепер можна покращити найменування.', 'ok');
+    } else { setStatus('❌ Помилка при генерації SEO.', 'err'); }
     btn.disabled = false;
 }
 
 function copyText(id, btn) {
     navigator.clipboard.writeText(document.getElementById(id).value);
     const orig = btn.textContent;
-    btn.textContent = '✔ Скопировано!';
+    btn.textContent = '✔ Скопійовано!';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
 }
@@ -1130,9 +1130,9 @@ function toggleNotes() {
 }
 
 const chipTranslations = {
-    brand: 'Бренд: ', promo: 'Акция: ', delivery: 'Доставка: ',
-    warranty: 'Гарантия: ', assembly: 'Монтаж: ', gift: 'Подарок: ',
-    stock: 'Наличие: ', payment: 'Оплата: ', custom: 'Своё: '
+    brand: 'Бренд: ', promo: 'Акція: ', delivery: 'Доставка: ',
+    warranty: 'Гарантія: ', assembly: 'Монтаж: ', gift: 'Подарунок: ',
+    stock: 'Наявність: ', payment: 'Оплата: ', custom: 'Своє: '
 };
 
 function insertChip(k) {
@@ -1146,7 +1146,7 @@ function insertChip(k) {
 function onNotesChange() {
     const val = document.getElementById('managerNotes').value;
     document.getElementById('notesBadge').style.display = val.length > 0 ? 'inline' : 'none';
-    document.getElementById('notesChars').textContent = val.length + ' символов';
+    document.getElementById('notesChars').textContent = val.length + ' символів';
 }
 
 function clearNotes() {
