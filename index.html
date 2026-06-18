@@ -16,6 +16,7 @@
             --blue:       #4f9ef8;
             --accent:     #f0c44a;
             --violet:     #c084fc;
+            --violet-dim: #7c3aed;
             --text:       #e8ecf4;
             --text-muted: #7a8299;
             --text-dim:   #4a5168;
@@ -177,10 +178,10 @@
         .btn-blue    { background: linear-gradient(135deg, #4f9ef8, #2b6cb0); color: #fff; }
         .btn-seo     { background: linear-gradient(135deg, #f0c44a, #c08820); color: #0d0f12; }
         .btn-sheets  { background: linear-gradient(135deg, #34d399, #059669); color: #0d0f12; }
+        .btn-auto    { background: linear-gradient(135deg, #c084fc, #7c3aed); color: #fff; }
 
         .action-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
 
-        /* Артикул-бейдж под строкой ссылки */
         .article-badge {
             display: none;
             align-items: center;
@@ -212,6 +213,86 @@
         }
         #status.ok  { color: var(--green); }
         #status.err { color: #f87171; }
+
+        /* ─── Панель авто-прогресса ─── */
+        #autoProgress {
+            display: none;
+            background: var(--surface);
+            border: 1px solid rgba(192,132,252,0.3);
+            border-radius: 12px;
+            padding: 16px 18px;
+            flex-direction: column;
+            gap: 12px;
+        }
+        #autoProgress.visible { display: flex; }
+
+        .ap-header {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .ap-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 12px; font-weight: 700;
+            color: var(--violet);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .ap-cancel {
+            font-size: 11px; color: var(--text-dim);
+            background: none; border: none; cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: color 0.15s;
+        }
+        .ap-cancel:hover { color: #f87171; }
+
+        .ap-steps {
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .ap-step {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 12px; color: var(--text-muted);
+            transition: color 0.2s;
+        }
+        .ap-step.active  { color: var(--text); }
+        .ap-step.done    { color: var(--green); }
+        .ap-step.error   { color: #f87171; }
+
+        .ap-dot {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700; flex-shrink: 0;
+            color: var(--text-dim);
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+        }
+        .ap-step.active .ap-dot {
+            background: rgba(192,132,252,0.15);
+            border-color: var(--violet);
+            color: var(--violet);
+            animation: spin-dot 1.2s linear infinite;
+        }
+        .ap-step.done  .ap-dot { background: rgba(61,220,132,0.15); border-color: var(--green); color: var(--green); }
+        .ap-step.error .ap-dot { background: rgba(248,113,113,0.15); border-color: #f87171; color: #f87171; }
+
+        @keyframes spin-dot {
+            0%   { box-shadow: 0 0 0 0 rgba(192,132,252,0.4); }
+            50%  { box-shadow: 0 0 0 4px rgba(192,132,252,0.1); }
+            100% { box-shadow: 0 0 0 0 rgba(192,132,252,0); }
+        }
+
+        .ap-bar-wrap {
+            height: 4px; background: var(--border2); border-radius: 4px; overflow: hidden;
+        }
+        .ap-bar {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #c084fc, #7c3aed);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .ap-msg {
+            font-size: 11px; color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            min-height: 14px;
+        }
 
         .dot-green { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; }
         .dot-blue  { width: 7px; height: 7px; border-radius: 50%; background: var(--blue);  display: inline-block; }
@@ -370,25 +451,21 @@
             </div>
             <div class="guide-step">
                 <div class="step-num">3</div>
-                <div class="step-body"><h4>Создайте описание</h4><p>Чистый текст без HTML-тегов на двух языках. AI также извлечёт артикул товара.</p></div>
+                <div class="step-body"><h4>⚡ Авто — одна кнопка</h4><p>Запускает весь цикл: описание → SEO → название → таблица автоматически.</p></div>
             </div>
             <div class="guide-step">
                 <div class="step-num">4</div>
-                <div class="step-body"><h4>Сгенерируйте SEO-ключи</h4><p>Дополнительные ключевые слова для продвижения.</p></div>
+                <div class="step-body"><h4>Или вручную по шагам</h4><p>Каждую кнопку можно нажать отдельно для контроля на каждом этапе.</p></div>
             </div>
             <div class="guide-step">
                 <div class="step-num">5</div>
-                <div class="step-body"><h4>Улучшите наименование</h4><p>AI составит SEO-оптимальное название на основе описания и ключевых слов.</p></div>
-            </div>
-            <div class="guide-step">
-                <div class="step-num">6</div>
                 <div class="step-body"><h4>Сохраните в таблицу</h4><p>Кнопка «📊 В таблицу» запишет все данные вместе с артикулом.</p></div>
             </div>
         </div>
         <div class="guide-tip">
             <div class="tip-label">💡 Советы</div>
             <p>Товар должен быть публично доступен (без авторизации).</p>
-            <p>Запросы теперь защищены и обрабатываются на сервере.</p>
+            <p>⚡ Авто занимает ~2-3 минуты полностью.</p>
         </div>
     </aside>
 
@@ -405,17 +482,17 @@
                 <input type="text" id="link" placeholder="https://example.com/product-page">
             </div>
 
-            <!-- Артикул появляется после парсинга -->
             <div class="article-badge" id="articleBadge">
                 <span class="article-badge-label">Артикул</span>
                 <span class="article-badge-value" id="articleValue">—</span>
             </div>
 
             <div class="action-row">
-                <button class="btn btn-primary" id="genBtn"  onclick="generate()">✨ Создать описание</button>
-                <button class="btn btn-seo"     id="seoBtn"  onclick="generateSEO()"  disabled>🔑 SEO-ключи</button>
-                <button class="btn btn-blue"    id="nameBtn" onclick="generateName()" disabled>✦ Улучшить название</button>
-                <button class="btn btn-sheets"  id="saveBtn" onclick="saveToSheets()" disabled>📊 В таблицу</button>
+                <button class="btn btn-auto"    id="autoBtn"  onclick="runAuto()">⚡ Авто</button>
+                <button class="btn btn-primary" id="genBtn"   onclick="generate()">✨ Создать описание</button>
+                <button class="btn btn-seo"     id="seoBtn"   onclick="generateSEO()"  disabled>🔑 SEO-ключи</button>
+                <button class="btn btn-blue"    id="nameBtn"  onclick="generateName()" disabled>✦ Улучшить название</button>
+                <button class="btn btn-sheets"  id="saveBtn"  onclick="saveToSheets()" disabled>📊 В таблицу</button>
                 <a href="https://docs.google.com/spreadsheets/d/1C5DXMyqQ_kPMIg8M8r5H16Gs0jUXHVQtXXB8YOS_9Pc/edit"
                    target="_blank"
                    class="btn"
@@ -424,6 +501,40 @@
                 </a>
             </div>
             <div id="status"></div>
+        </div>
+
+        <!-- ─── Панель прогресса авто-режима ─── -->
+        <div id="autoProgress">
+            <div class="ap-header">
+                <span class="ap-title">⚡ Авто-режим</span>
+                <button class="ap-cancel" id="apCancelBtn" onclick="cancelAuto()">✕ Отмена</button>
+            </div>
+            <div class="ap-steps">
+                <div class="ap-step" id="apStep0">
+                    <div class="ap-dot" id="apDot0">1</div>
+                    <span>Парсинг страницы товара</span>
+                </div>
+                <div class="ap-step" id="apStep1">
+                    <div class="ap-dot" id="apDot1">2</div>
+                    <span>Описание УКР + РУС</span>
+                </div>
+                <div class="ap-step" id="apStep2">
+                    <div class="ap-dot" id="apDot2">3</div>
+                    <span>SEO-ключи УКР + РУС</span>
+                </div>
+                <div class="ap-step" id="apStep3">
+                    <div class="ap-dot" id="apDot3">4</div>
+                    <span>Улучшение наименования</span>
+                </div>
+                <div class="ap-step" id="apStep4">
+                    <div class="ap-dot" id="apDot4">5</div>
+                    <span>Сохранение в таблицу</span>
+                </div>
+            </div>
+            <div class="ap-bar-wrap">
+                <div class="ap-bar" id="apBar"></div>
+            </div>
+            <div class="ap-msg" id="apMsg"></div>
         </div>
 
         <div class="notes-card">
@@ -526,18 +637,18 @@
 </div>
 
 <script>
-const SERVER_URL = 'https://gemini-api-server-dnzk.onrender.com/api/generate';
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz50xuoXGhL1TT_NofpeA0i_sOZ0Wc_OyTn7kLy7yE8iPJ40JtGiK01Ooa2TMtvear-0A/exec';
+const SERVER_URL  = 'https://gemini-api-server-dnzk.onrender.com/api/generate';
+const SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbz50xuoXGhL1TT_NofpeA0i_sOZ0Wc_OyTn7kLy7yE8iPJ40JtGiK01Ooa2TMtvear-0A/exec';
 
-// Глобальная переменная — артикул, извлечённый при парсинге
 let currentArticle = '';
+let autoCancelled  = false;
 
+/* ─── утилиты ─── */
 function setStatus(msg, type) {
     const el = document.getElementById('status');
     el.textContent = msg;
     el.className = type || '';
 }
-
 function showBlock(id) { const el = document.getElementById(id); if (el) el.classList.add('visible'); }
 function hideBlock(id) { const el = document.getElementById(id); if (el) el.classList.remove('visible'); }
 
@@ -545,12 +656,8 @@ function showArticle(value) {
     currentArticle = value || '';
     const badge = document.getElementById('articleBadge');
     const val   = document.getElementById('articleValue');
-    if (currentArticle) {
-        val.textContent = currentArticle;
-        badge.classList.add('visible');
-    } else {
-        badge.classList.remove('visible');
-    }
+    if (currentArticle) { val.textContent = currentArticle; badge.classList.add('visible'); }
+    else { badge.classList.remove('visible'); }
 }
 
 async function fetchPageText(url) {
@@ -570,14 +677,10 @@ async function callGemini(prompt) {
         });
         const data = await resp.json();
         return data.ok ? { ok: true, text: data.text } : { ok: false, text: '' };
-    } catch (e) {
-        return { ok: false, text: '' };
-    }
+    } catch (e) { return { ok: false, text: '' }; }
 }
 
-// Извлекаем артикул регуляркой из текста страницы
 function extractArticle(pageText) {
-    // Ищем метки артикула и захватываем значение после них
     const patterns = [
         /(?:артикул|арт(?:икул)?\.?|код товару|код товара|article|sku|item\s*(?:no|num|#|code))[:\s#]+([A-Za-zА-Яа-яЁёІіЇїЄє0-9][-A-Za-zА-Яа-яЁёІіЇїЄє0-9_.\/]{1,30})/gi,
     ];
@@ -589,10 +692,164 @@ function extractArticle(pageText) {
     return '—';
 }
 
-async function saveToSheets() {
-    const btn = document.getElementById('saveBtn');
-    btn.disabled = true;
-    setStatus('⏳ Сохраняю в таблицу...', '');
+/* ─── блокировка всех кнопок ─── */
+function lockAll(lock) {
+    ['autoBtn','genBtn','seoBtn','nameBtn','saveBtn'].forEach(id => {
+        document.getElementById(id).disabled = lock;
+    });
+}
+
+/* ─── авто-прогресс: UI ─── */
+function apShow()  { document.getElementById('autoProgress').classList.add('visible'); }
+function apHide()  { document.getElementById('autoProgress').classList.remove('visible'); }
+
+function apSetStep(idx, state) {
+    const step = document.getElementById('apStep' + idx);
+    const dot  = document.getElementById('apDot'  + idx);
+    step.className = 'ap-step ' + (state || '');
+    if (state === 'done')   dot.textContent = '✓';
+    else if (state === 'error') dot.textContent = '✕';
+    else dot.textContent = String(idx + 1);
+}
+
+function apSetBar(pct) {
+    document.getElementById('apBar').style.width = pct + '%';
+}
+
+function apSetMsg(msg) {
+    document.getElementById('apMsg').textContent = msg;
+}
+
+function apReset() {
+    for (let i = 0; i < 5; i++) apSetStep(i, '');
+    apSetBar(0);
+    apSetMsg('');
+}
+
+/* ─── отмена авто ─── */
+function cancelAuto() {
+    autoCancelled = true;
+    apSetMsg('⛔ Отменено пользователем');
+    document.getElementById('apCancelBtn').disabled = true;
+}
+
+/* ─── АВТО-РЕЖИМ ─── */
+async function runAuto() {
+    const url = document.getElementById('link').value.trim();
+    if (!url) { setStatus('⚠️ Вставьте ссылку на товар!', 'err'); return; }
+    if (!url.startsWith('http')) { setStatus('⚠️ Ссылка должна начинаться с http://', 'err'); return; }
+
+    autoCancelled = false;
+    lockAll(true);
+    apReset();
+    apShow();
+    document.getElementById('apCancelBtn').disabled = false;
+
+    /* сброс результатов */
+    hideBlock('blockUA'); hideBlock('blockRU');
+    hideBlock('blockSEO-UA'); hideBlock('blockSEO-RU');
+    hideBlock('blockNameUA'); hideBlock('blockNameRU');
+    document.getElementById('nameSectionHeader').classList.remove('visible');
+    ['resUA','resRU','seoUA','seoRU','nameUA','nameRU'].forEach(id => { document.getElementById(id).value = ''; });
+    showArticle('');
+    setStatus('');
+
+    const managerNotes = document.getElementById('managerNotes').value.trim();
+
+    /* ШАГ 0 — парсинг */
+    apSetStep(0, 'active');
+    apSetBar(5);
+    apSetMsg('⏳ Загружаю страницу товара...');
+
+    const pageText = await fetchPageText(url);
+    if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
+
+    if (!pageText) {
+        apSetStep(0, 'error');
+        apSetMsg('❌ Не удалось прочитать страницу товара');
+        setStatus('❌ Не удалось прочитать данные с сайта.', 'err');
+        lockAll(false); document.getElementById('autoBtn').disabled = false;
+        return;
+    }
+    apSetStep(0, 'done');
+    apSetBar(10);
+    showArticle(extractArticle(pageText));
+
+    /* ШАГ 1 — описание УКР + РУС */
+    apSetStep(1, 'active');
+    apSetMsg('⏳ Генерирую описание на украинском...');
+
+    const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes));
+    if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
+    if (!ua.ok) {
+        apSetStep(1, 'error');
+        apSetMsg('❌ Ошибка при генерации УКР описания');
+        setStatus('❌ Ошибка при генерации описания.', 'err');
+        lockAll(false); document.getElementById('autoBtn').disabled = false;
+        return;
+    }
+    document.getElementById('resUA').value = ua.text;
+    showBlock('blockUA');
+    apSetBar(28);
+    apSetMsg('⏳ Генерирую описание на русском...');
+
+    const ru = await callGemini(buildPrompt(pageText, 'russian', managerNotes));
+    if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
+    if (!ru.ok) {
+        apSetStep(1, 'error');
+        apSetMsg('❌ Ошибка при генерации РУС описания');
+        setStatus('⚠️ УКР готово, но ошибка РУС.', '');
+        lockAll(false); document.getElementById('autoBtn').disabled = false;
+        return;
+    }
+    document.getElementById('resRU').value = ru.text;
+    showBlock('blockRU');
+    apSetStep(1, 'done');
+    apSetBar(42);
+
+    /* ШАГ 2 — SEO */
+    apSetStep(2, 'active');
+    apSetMsg('⏳ Генерирую SEO-ключи (УКР)...');
+
+    const seoUaRes = await callGemini("Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:\n\n" + ua.text);
+    if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
+    if (seoUaRes.ok) { document.getElementById('seoUA').value = seoUaRes.text; showBlock('blockSEO-UA'); }
+
+    apSetBar(54);
+    apSetMsg('⏳ Генерирую SEO-ключи (РУС)...');
+
+    const seoRuRes = await callGemini("Напиши 15-20 релевантных SEO-ключей для продвижения этого текста. Выведи их просто через запятую, без нумерации и списков:\n\n" + ru.text);
+    if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
+    if (seoRuRes.ok) { document.getElementById('seoRU').value = seoRuRes.text; showBlock('blockSEO-RU'); }
+
+    apSetStep(2, 'done');
+    apSetBar(66);
+
+    /* ШАГ 3 — название */
+    apSetStep(3, 'active');
+    apSetMsg('⏳ Улучшаю наименование...');
+
+    const namePrompt = buildNamePrompt(ua.text, ru.text, seoUaRes.text, seoRuRes.text);
+    const nameRes = await callGemini(namePrompt);
+    if (autoCancelled) { apFinishCancelled(); lockAll(false); document.getElementById('autoBtn').disabled = false; return; }
+
+    if (nameRes.ok) {
+        const lines = nameRes.text.split('\n');
+        document.getElementById('nameUA').value = lines.find(l => l.startsWith('UA:'))?.replace('UA:', '').trim().replace(/["«»""]/g, '') || '';
+        document.getElementById('nameRU').value = lines.find(l => l.startsWith('RU:'))?.replace('RU:', '').trim().replace(/["«»""]/g, '') || '';
+        document.getElementById('nameSectionHeader').classList.add('visible');
+        showBlock('blockNameUA');
+        showBlock('blockNameRU');
+        apSetStep(3, 'done');
+    } else {
+        apSetStep(3, 'error');
+    }
+    apSetBar(82);
+
+    /* ШАГ 4 — сохранение */
+    apSetStep(4, 'active');
+    apSetMsg('⏳ Сохраняю в Google Таблицу...');
+
     try {
         await fetch(SHEETS_URL, {
             method: 'POST',
@@ -600,7 +857,7 @@ async function saveToSheets() {
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
                 article: currentArticle,
-                url:     document.getElementById('link').value   || '',
+                url:     url,
                 nameUA:  document.getElementById('nameUA').value || '',
                 nameRU:  document.getElementById('nameRU').value || '',
                 descUA:  document.getElementById('resUA').value  || '',
@@ -609,29 +866,32 @@ async function saveToSheets() {
                 seoRU:   document.getElementById('seoRU').value  || '',
             })
         });
-        setStatus('✅ Сохранено в Google Таблицу!', 'ok');
+        apSetStep(4, 'done');
+        apSetBar(100);
+        apSetMsg('✅ Всё готово! Данные сохранены в таблицу.');
+        setStatus(`✅ Авто-режим завершён! Артикул: ${currentArticle}`, 'ok');
     } catch(e) {
-        setStatus('❌ Ошибка сохранения.', 'err');
+        apSetStep(4, 'error');
+        apSetMsg('⚠️ Сохранено локально, ошибка записи в таблицу.');
+        setStatus('⚠️ Готово, но ошибка сохранения в таблицу.', '');
     }
-    btn.disabled = false;
+
+    /* разблокируем только авто и ручные кнопки */
+    document.getElementById('autoBtn').disabled = false;
+    document.getElementById('genBtn').disabled  = false;
+    document.getElementById('seoBtn').disabled  = false;
+    document.getElementById('nameBtn').disabled = false;
+    document.getElementById('saveBtn').disabled = false;
 }
 
-async function generateName() {
-    const textUA = document.getElementById('resUA').value;
-    const textRU = document.getElementById('resRU').value;
-    const seoUA  = document.getElementById('seoUA').value;
-    const seoRU  = document.getElementById('seoRU').value;
+function apFinishCancelled() {
+    apSetMsg('⛔ Авто-режим отменён');
+    setStatus('⛔ Авто-режим отменён.', '');
+}
 
-    if (!textUA || !textRU) { setStatus('⚠️ Сначала сгенерируйте описание!', 'err'); return; }
-
-    const btn = document.getElementById('nameBtn');
-    btn.disabled = true;
-    hideBlock('blockNameUA');
-    hideBlock('blockNameRU');
-    document.getElementById('nameSectionHeader').classList.remove('visible');
-    setStatus('⏳ Генерирую наименование...', '');
-
-    const prompt = `У тебя есть готовое описание товара и SEO-ключи на двух языках.
+/* ─── построение промпта для названия ─── */
+function buildNamePrompt(textUA, textRU, seoUA, seoRU) {
+    return `У тебя есть готовое описание товара и SEO-ключи на двух языках.
 
 ОПИСАНИЕ (УКР):
 ${textUA}
@@ -672,19 +932,54 @@ UA: [название на украинском по шаблону]
 RU: [название на русском по шаблону]
 
 Никаких пояснений, только две строки с префиксами UA: и RU:`;
+}
 
-    const res = await callGemini(prompt);
+/* ─── ручные кнопки (оригинальный код) ─── */
+async function saveToSheets() {
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true;
+    setStatus('⏳ Сохраняю в таблицу...', '');
+    try {
+        await fetch(SHEETS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                article: currentArticle,
+                url:     document.getElementById('link').value   || '',
+                nameUA:  document.getElementById('nameUA').value || '',
+                nameRU:  document.getElementById('nameRU').value || '',
+                descUA:  document.getElementById('resUA').value  || '',
+                descRU:  document.getElementById('resRU').value  || '',
+                seoUA:   document.getElementById('seoUA').value  || '',
+                seoRU:   document.getElementById('seoRU').value  || '',
+            })
+        });
+        setStatus('✅ Сохранено в Google Таблицу!', 'ok');
+    } catch(e) { setStatus('❌ Ошибка сохранения.', 'err'); }
+    btn.disabled = false;
+}
+
+async function generateName() {
+    const textUA = document.getElementById('resUA').value;
+    const textRU = document.getElementById('resRU').value;
+    const seoUA  = document.getElementById('seoUA').value;
+    const seoRU  = document.getElementById('seoRU').value;
+    if (!textUA || !textRU) { setStatus('⚠️ Сначала сгенерируйте описание!', 'err'); return; }
+    const btn = document.getElementById('nameBtn');
+    btn.disabled = true;
+    hideBlock('blockNameUA'); hideBlock('blockNameRU');
+    document.getElementById('nameSectionHeader').classList.remove('visible');
+    setStatus('⏳ Генерирую наименование...', '');
+    const res = await callGemini(buildNamePrompt(textUA, textRU, seoUA, seoRU));
     if (res.ok) {
         const lines = res.text.split('\n');
         document.getElementById('nameUA').value = lines.find(l => l.startsWith('UA:'))?.replace('UA:', '').trim().replace(/["«»""]/g, '') || '';
         document.getElementById('nameRU').value = lines.find(l => l.startsWith('RU:'))?.replace('RU:', '').trim().replace(/["«»""]/g, '') || '';
         document.getElementById('nameSectionHeader').classList.add('visible');
-        showBlock('blockNameUA');
-        showBlock('blockNameRU');
+        showBlock('blockNameUA'); showBlock('blockNameRU');
         setStatus('✅ Наименование улучшено!', 'ok');
-    } else {
-        setStatus('❌ Ошибка при генерации названия.', 'err');
-    }
+    } else { setStatus('❌ Ошибка при генерации названия.', 'err'); }
     btn.disabled = false;
 }
 
@@ -775,7 +1070,6 @@ async function generate() {
         return;
     }
 
-    // Извлекаем артикул из текста страницы (синхронно) и генерируем описание
     setStatus('⏳ Извлекаю артикул і генерирую описание...', '');
     showArticle(extractArticle(pageText));
     const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes));
@@ -791,12 +1085,8 @@ async function generate() {
             showBlock('blockRU');
             document.getElementById('seoBtn').disabled = false;
             setStatus(`✅ Описание готово! Артикул: ${currentArticle}. Следующий шаг — SEO-ключи.`, 'ok');
-        } else {
-            setStatus('⚠️ УКР готово, но произошла ошибка при генерации РУС.', '');
-        }
-    } else {
-        setStatus('❌ Ошибка при генерации описания.', 'err');
-    }
+        } else { setStatus('⚠️ УКР готово, но произошла ошибка при генерации РУС.', ''); }
+    } else { setStatus('❌ Ошибка при генерации описания.', 'err'); }
     btn.disabled = false;
 }
 
@@ -821,9 +1111,7 @@ async function generateSEO() {
         document.getElementById('nameBtn').disabled = false;
         document.getElementById('saveBtn').disabled = false;
         setStatus('✅ SEO-ключи готовы! Теперь можно улучшить наименование.', 'ok');
-    } else {
-        setStatus('❌ Ошибка при генерации SEO.', 'err');
-    }
+    } else { setStatus('❌ Ошибка при генерации SEO.', 'err'); }
     btn.disabled = false;
 }
 
