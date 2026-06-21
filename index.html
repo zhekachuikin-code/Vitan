@@ -1425,10 +1425,11 @@ async function runFileBatch() {
         type: 'text',
         article: r.article,
         text: buildSourceTextFromRow(r),
-        label: r.article !== '—' ? r.article : r.name
+        label: 'https://file-import.local/product/' + encodeURIComponent(r.article !== '—' ? r.article : r.name),
+        display: (r.article !== '—' ? r.article + ' — ' : '') + r.name
     }));
 
-    bpRenderListGeneric(items.map(it => it.label));
+    bpRenderListGeneric(items.map(it => it.display));
     bpSetOverall(0, items.length);
     bpShow();
     setFileStatus(`⏳ Обробка ${items.length} товарів з файлу...`, '');
