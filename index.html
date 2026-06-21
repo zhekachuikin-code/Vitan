@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Генератор описів товарів</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --bg:         #0d0f12;
@@ -248,6 +249,50 @@
         #batchLinks::placeholder { color: var(--text-dim); }
         #batchLinks:focus { border-color: rgba(249,115,22,0.45); }
         .batch-hint { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+
+        /* ─── Режим: файл ─── */
+        .file-drop {
+            border: 1.5px dashed var(--border2);
+            border-radius: var(--radius);
+            padding: 22px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            background: var(--bg);
+        }
+        .file-drop:hover, .file-drop.dragover {
+            border-color: #f97316;
+            background: rgba(249,115,22,0.05);
+        }
+        .file-drop-icon { font-size: 26px; margin-bottom: 6px; }
+        .file-drop-text { font-size: 13px; color: var(--text); font-weight: 600; }
+        .file-drop-hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+        #fileInput { display: none; }
+        .file-selected {
+            display: none; align-items: center; gap: 10px;
+            margin-top: 10px; padding: 8px 12px;
+            background: var(--surface2); border: 1px solid var(--border2);
+            border-radius: var(--radius); font-size: 12px;
+        }
+        .file-selected.visible { display: flex; }
+        .file-selected-name { font-family: 'JetBrains Mono', monospace; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .file-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 13px; }
+        .file-remove:hover { color: #f87171; }
+
+        .preview-table-wrap { margin-top: 12px; max-height: 260px; overflow: auto; border: 1px solid var(--border2); border-radius: var(--radius); }
+        table.preview-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+        table.preview-table th {
+            text-align: left; padding: 7px 10px; background: var(--surface2);
+            color: var(--text-dim); font-weight: 700; font-size: 10px; text-transform: uppercase;
+            position: sticky; top: 0; letter-spacing: 0.5px;
+        }
+        table.preview-table td {
+            padding: 6px 10px; border-top: 1px solid var(--border);
+            color: var(--text-muted); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        table.preview-table td.col-article { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+        table.preview-table td.col-name { color: var(--text); }
+        table.preview-table tr:hover td { background: rgba(255,255,255,0.02); }
 
         /* ─── Панель авто-прогресса (одиночный режим) ─── */
         #autoProgress {
@@ -578,7 +623,8 @@
 
             <div class="mode-tabs">
                 <div class="mode-tab active" id="tabSingle" onclick="switchMode('single')">🔗 Один товар</div>
-                <div class="mode-tab" id="tabBatch" onclick="switchMode('batch')">📦 Група товарів</div>
+                <div class="mode-tab" id="tabBatch" onclick="switchMode('batch')">📦 Список посилань</div>
+                <div class="mode-tab" id="tabFile" onclick="switchMode('file')">📁 Файл (XLS/CSV)</div>
             </div>
 
             <!-- ─── Одиночный режим ─── -->
@@ -625,6 +671,44 @@
                     </a>
                 </div>
                 <div id="batchStatus" style="font-size:12px;color:var(--text-muted);min-height:16px;font-family:'JetBrains Mono',monospace;margin-top:10px;"></div>
+            </div>
+
+            <!-- ─── Режим: файл ─── -->
+            <div class="mode-panel" id="panelFile">
+                <div class="card-label">Файл зі списком товарів (.xls, .xlsx, .csv)</div>
+
+                <div class="file-drop" id="fileDrop" onclick="document.getElementById('fileInput').click()">
+                    <div class="file-drop-icon">📁</div>
+                    <div class="file-drop-text">Натисніть або перетягніть файл сюди</div>
+                    <div class="file-drop-hint">Очікувані колонки: Артикул, Наименование/Назва, РРЦ, Описание (необов'язково)</div>
+                </div>
+                <input type="file" id="fileInput" accept=".xls,.xlsx,.csv" onchange="onFileSelected(event)">
+
+                <div class="file-selected" id="fileSelected">
+                    <span>📄</span>
+                    <span class="file-selected-name" id="fileSelectedName"></span>
+                    <button class="file-remove" onclick="clearFile()">✕</button>
+                </div>
+
+                <div class="batch-hint" id="fileCount" style="display:none;"></div>
+
+                <div class="preview-table-wrap" id="filePreviewWrap" style="display:none;">
+                    <table class="preview-table" id="filePreviewTable">
+                        <thead><tr><th>Артикул</th><th>Найменування</th><th>РРЦ</th><th>Опис (джерело)</th></tr></thead>
+                        <tbody id="filePreviewBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="action-row">
+                    <button class="btn btn-batch" id="fileBtn" onclick="runFileBatch()" disabled>📁 Обробити товари з файлу</button>
+                    <a href="https://docs.google.com/spreadsheets/d/1C5DXMyqQ_kPMIg8M8r5H16Gs0jUXHVQtXXB8YOS_9Pc/edit"
+                       target="_blank"
+                       class="btn btn-ghost"
+                       style="text-decoration:none;">
+                        📋 Відкрити таблицю
+                    </a>
+                </div>
+                <div id="fileStatus" style="font-size:12px;color:var(--text-muted);min-height:16px;font-family:'JetBrains Mono',monospace;margin-top:10px;"></div>
             </div>
 
         </div>
@@ -787,8 +871,10 @@ let batchCancelled = false;
 function switchMode(mode) {
     document.getElementById('tabSingle').classList.toggle('active', mode === 'single');
     document.getElementById('tabBatch').classList.toggle('active', mode === 'batch');
+    document.getElementById('tabFile').classList.toggle('active', mode === 'file');
     document.getElementById('panelSingle').classList.toggle('active', mode === 'single');
     document.getElementById('panelBatch').classList.toggle('active', mode === 'batch');
+    document.getElementById('panelFile').classList.toggle('active', mode === 'file');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -863,7 +949,7 @@ function extractArticle(pageText) {
 
 /* ─── блокировка всех кнопок ─── */
 function lockAll(lock) {
-    ['autoBtn','genBtn','seoBtn','nameBtn','saveBtn','batchBtn'].forEach(id => {
+    ['autoBtn','genBtn','seoBtn','nameBtn','saveBtn','batchBtn','fileBtn'].forEach(id => {
         document.getElementById(id).disabled = lock;
     });
 }
@@ -908,19 +994,29 @@ function cancelAuto() {
    onStage(stageIndex, state, msg) — callback для обновления UI прогресса.
    Возвращает { ok, article, url, nameUA, nameRU, descUA, descRU, seoUA, seoRU, error }
    ════════════════════════════════════════════════ */
-async function processProduct(url, managerNotes, onStage, isCancelled) {
+async function processProduct(source, managerNotes, onStage, isCancelled) {
+    const isUrl = (typeof source === 'string') || source.type === 'url';
+    const url = isUrl ? (typeof source === 'string' ? source : source.url) : (source.label || '');
     const result = { ok: false, article: '', url, nameUA: '', nameRU: '', descUA: '', descRU: '', seoUA: '', seoRU: '' };
 
-    onStage(0, 'active', '⏳ Завантажую сторінку товару...');
-    const pageText = await fetchPageText(url);
-    if (isCancelled()) { result.error = 'cancelled'; return result; }
-    if (!pageText) {
-        onStage(0, 'error', '❌ Не вдалося прочитати сторінку товару');
-        result.error = 'fetch_failed';
-        return result;
+    let pageText;
+    if (isUrl) {
+        onStage(0, 'active', '⏳ Завантажую сторінку товару...');
+        pageText = await fetchPageText(url);
+        if (isCancelled()) { result.error = 'cancelled'; return result; }
+        if (!pageText) {
+            onStage(0, 'error', '❌ Не вдалося прочитати сторінку товару');
+            result.error = 'fetch_failed';
+            return result;
+        }
+        onStage(0, 'done');
+        result.article = extractArticle(pageText);
+    } else {
+        onStage(0, 'active', '⏳ Готую дані з файлу...');
+        pageText = source.text;
+        result.article = source.article || '—';
+        onStage(0, 'done');
     }
-    onStage(0, 'done');
-    result.article = extractArticle(pageText);
 
     onStage(1, 'active', '⏳ Генерую опис українською...');
     const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes));
@@ -1188,6 +1284,230 @@ async function runBatch() {
     }
 
     lockAll(false);
+    document.getElementById('fileBtn').disabled = fileRows.length === 0;
+}
+
+/* ════════════════════════════════════════════════
+   РЕЖИМ ФАЙЛА — парсинг XLS/XLSX/CSV и пакетная обробка
+   ════════════════════════════════════════════════ */
+let fileRows = []; // [{article, name, price, description}]
+
+function onFileSelected(evt) {
+    const file = evt.target.files[0];
+    if (!file) return;
+
+    document.getElementById('fileSelected').classList.add('visible');
+    document.getElementById('fileSelectedName').textContent = file.name;
+    setFileStatus('⏳ Читаю файл...', '');
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+            fileRows = parseFileRows(rows);
+            renderFilePreview(fileRows);
+            document.getElementById('fileBtn').disabled = fileRows.length === 0;
+            document.getElementById('fileCount').style.display = 'block';
+            document.getElementById('fileCount').textContent = fileRows.length + ' товарів знайдено у файлі';
+            setFileStatus(fileRows.length ? '✅ Файл прочитано. Перевірте перегляд нижче.' : '⚠️ Не знайдено жодного рядка з назвою товару.', fileRows.length ? 'ok' : 'err');
+        } catch (err) {
+            setFileStatus('❌ Помилка читання файлу: ' + err.message, 'err');
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function clearFile() {
+    fileRows = [];
+    document.getElementById('fileInput').value = '';
+    document.getElementById('fileSelected').classList.remove('visible');
+    document.getElementById('fileCount').style.display = 'none';
+    document.getElementById('filePreviewWrap').style.display = 'none';
+    document.getElementById('fileBtn').disabled = true;
+    setFileStatus('', '');
+}
+
+/* находим нужные колонки по заголовкам независимо от их порядка/языка */
+function parseFileRows(rows) {
+    if (!rows.length) return [];
+
+    let headerRowIdx = -1;
+    let colMap = {};
+    const wanted = {
+        article: ['артикул', 'sku', 'код'],
+        name:    ['наименование', 'найменування', 'назва', 'название', 'name'],
+        price:   ['ррц', 'цена', 'ціна', 'price'],
+        desc:    ['описание', 'опис', 'description']
+    };
+
+    for (let r = 0; r < Math.min(rows.length, 10); r++) {
+        const row = rows[r].map(c => String(c || '').toLowerCase().trim());
+        let matches = 0;
+        const tempMap = {};
+        row.forEach((cell, idx) => {
+            for (const key in wanted) {
+                if (wanted[key].some(w => cell.includes(w))) { tempMap[key] = idx; matches++; }
+            }
+        });
+        if (matches >= 2) { headerRowIdx = r; colMap = tempMap; break; }
+    }
+
+    if (headerRowIdx === -1) return [];
+
+    const result = [];
+    for (let r = headerRowIdx + 1; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row || row.length === 0) continue;
+
+        const article = colMap.article !== undefined ? String(row[colMap.article] ?? '').trim() : '';
+        const name     = colMap.name    !== undefined ? String(row[colMap.name] ?? '').trim()    : '';
+        const price    = colMap.price   !== undefined ? String(row[colMap.price] ?? '').trim()   : '';
+        const desc     = colMap.desc    !== undefined ? String(row[colMap.desc] ?? '').trim()    : '';
+
+        // пропускаем строки-заголовки категорий (нет названия товара или нет числового артикула рядом)
+        if (!name) continue;
+
+        result.push({ article: article || '—', name, price, description: desc });
+    }
+    return result;
+}
+
+function renderFilePreview(rows) {
+    const wrap = document.getElementById('filePreviewWrap');
+    const body = document.getElementById('filePreviewBody');
+    body.innerHTML = '';
+    if (!rows.length) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="col-article">${escapeHtml(r.article)}</td>
+            <td class="col-name">${escapeHtml(r.name)}</td>
+            <td>${escapeHtml(r.price)}</td>
+            <td>${escapeHtml((r.description || '').slice(0, 80))}</td>
+        `;
+        body.appendChild(tr);
+    });
+}
+
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function setFileStatus(msg, type) {
+    const el = document.getElementById('fileStatus');
+    el.textContent = msg;
+    el.className = type || '';
+}
+
+function buildSourceTextFromRow(row) {
+    let txt = `Назва товару: ${row.name}\n`;
+    if (row.price) txt += `Ціна: ${row.price}\n`;
+    if (row.description) txt += `\nОпис з прайсу:\n${row.description}`;
+    else txt += `\n(Додаткового опису немає — використовуй лише назву товару та її компоненти для формування тексту, не вигадуй характеристики, яких немає в назві.)`;
+    return txt;
+}
+
+async function runFileBatch() {
+    if (!fileRows.length) {
+        setFileStatus('⚠️ Спочатку завантажте файл з товарами!', 'err');
+        return;
+    }
+
+    batchCancelled = false;
+    lockAll(true);
+    document.getElementById('bpCancelBtn').disabled = false;
+
+    const items = fileRows.map(r => ({
+        type: 'text',
+        article: r.article,
+        text: buildSourceTextFromRow(r),
+        label: r.article !== '—' ? r.article : r.name
+    }));
+
+    bpRenderListGeneric(items.map(it => it.label));
+    bpSetOverall(0, items.length);
+    bpShow();
+    setFileStatus(`⏳ Обробка ${items.length} товарів з файлу...`, '');
+
+    const managerNotes = document.getElementById('managerNotes').value.trim();
+    let doneCount = 0, errorCount = 0, lastOk = null;
+
+    for (let i = 0; i < items.length; i++) {
+        if (batchCancelled) { bpSetItem(i, '', 'скасовано'); continue; }
+        bpSetItem(i, 'active', 'старт...');
+
+        const onStage = (stageIdx, state) => {
+            const label = STAGE_LABELS[stageIdx] || '';
+            bpSetItem(i, state === 'error' ? 'error' : 'active', (state === 'error' ? '❌ ' : '⏳ ') + label);
+        };
+
+        const res = await processProduct(items[i], managerNotes, onStage, () => batchCancelled);
+
+        if (res.ok) {
+            bpSetItem(i, 'done', '✓ готово', res.article);
+            doneCount++; lastOk = res;
+        } else if (res.error === 'cancelled') {
+            bpSetItem(i, '', 'скасовано');
+        } else {
+            bpSetItem(i, 'error', '✕ помилка: ' + res.error);
+            errorCount++;
+        }
+        bpSetOverall(i + 1, items.length);
+    }
+
+    if (lastOk) showLastResultInMainFields(lastOk);
+
+    if (batchCancelled) {
+        setFileStatus(`⛔ Скасовано. Оброблено: ${doneCount}, помилок: ${errorCount}, з ${items.length}.`, '');
+    } else if (errorCount === 0) {
+        setFileStatus(`✅ Готово! Усі ${doneCount} товарів з файлу оброблено та збережено до таблиці.`, 'ok');
+    } else {
+        setFileStatus(`⚠️ Завершено з помилками. Успішно: ${doneCount}, помилок: ${errorCount}, з ${items.length}.`, '');
+    }
+
+    lockAll(false);
+}
+
+/* переиспользуемая отрисовка списка прогресса по произвольным меткам (URL либо артикул/назва) */
+function bpRenderListGeneric(labels) {
+    const list = document.getElementById('bpList');
+    list.innerHTML = '';
+    labels.forEach((label, i) => {
+        const item = document.createElement('div');
+        item.className = 'bp-item';
+        item.id = 'bpItem' + i;
+        item.innerHTML = `
+            <div class="bp-item-dot" id="bpDot${i}">${i + 1}</div>
+            <div class="bp-item-url" title="${escapeHtml(label)}">${escapeHtml(label)}</div>
+            <div class="bp-item-article" id="bpArticle${i}"></div>
+            <div class="bp-item-stage" id="bpStage${i}">в очікуванні</div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+/* вынесенный показ результата последнего обработанного товара в основных полях */
+function showLastResultInMainFields(lastOk) {
+    hideBlock('blockUA'); hideBlock('blockRU');
+    hideBlock('blockSEO-UA'); hideBlock('blockSEO-RU');
+    hideBlock('blockNameUA'); hideBlock('blockNameRU');
+    document.getElementById('nameSectionHeader').classList.remove('visible');
+
+    showArticle(lastOk.article);
+    document.getElementById('resUA').value = lastOk.descUA; showBlock('blockUA');
+    document.getElementById('resRU').value = lastOk.descRU; showBlock('blockRU');
+    if (lastOk.seoUA) { document.getElementById('seoUA').value = lastOk.seoUA; showBlock('blockSEO-UA'); }
+    if (lastOk.seoRU) { document.getElementById('seoRU').value = lastOk.seoRU; showBlock('blockSEO-RU'); }
+    if (lastOk.nameUA || lastOk.nameRU) {
+        document.getElementById('nameUA').value = lastOk.nameUA;
+        document.getElementById('nameRU').value = lastOk.nameRU;
+        document.getElementById('nameSectionHeader').classList.add('visible');
+        showBlock('blockNameUA'); showBlock('blockNameRU');
+    }
 }
 
 /* ─── построение промпта для названия ─── */
