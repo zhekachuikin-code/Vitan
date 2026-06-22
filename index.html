@@ -663,6 +663,7 @@
 
                 <div class="action-row">
                     <button class="btn btn-batch" id="batchBtn" onclick="runBatch()">📦 Обробити всі товари</button>
+                    <button class="btn btn-ghost" id="retryBatchBtn" onclick="retryBatchFailed()" style="display:none;border-color:#f87171;color:#f87171;"></button>
                     <a href="https://docs.google.com/spreadsheets/d/1C5DXMyqQ_kPMIg8M8r5H16Gs0jUXHVQtXXB8YOS_9Pc/edit"
                        target="_blank"
                        class="btn btn-ghost"
@@ -701,6 +702,7 @@
 
                 <div class="action-row">
                     <button class="btn btn-batch" id="fileBtn" onclick="runFileBatch()" disabled>📁 Обробити товари з файлу</button>
+                    <button class="btn btn-ghost" id="retryFileBtn" onclick="retryFileFailed()" style="display:none;border-color:#f87171;color:#f87171;"></button>
                     <a href="https://docs.google.com/spreadsheets/d/1C5DXMyqQ_kPMIg8M8r5H16Gs0jUXHVQtXXB8YOS_9Pc/edit"
                        target="_blank"
                        class="btn btn-ghost"
@@ -1200,9 +1202,16 @@ function cancelBatch() {
 
 const STAGE_LABELS = ['Парсинг', 'Опис УКР/РУС', 'SEO-ключі', 'Назва', 'Запис у таблицю'];
 
-async function runBatch() {
-    const raw = document.getElementById('batchLinks').value;
-    const urls = parseBatchLinks(raw);
+let lastFailedBatchUrls = [];
+
+async function runBatch(urlsOverride) {
+    let urls;
+    if (urlsOverride && urlsOverride.length) {
+        urls = urlsOverride;
+    } else {
+        const raw = document.getElementById('batchLinks').value;
+        urls = parseBatchLinks(raw);
+    }
 
     if (urls.length === 0) {
         setBatchStatus('⚠️ Додайте хоча б одне коректне посилання (http...)!', 'err');
@@ -1211,6 +1220,7 @@ async function runBatch() {
 
     batchCancelled = false;
     lockAll(true);
+    hideRetryBatchBtn();
     document.getElementById('bpCancelBtn').disabled = false;
     bpRenderList(urls);
     bpSetOverall(0, urls.length);
@@ -1221,6 +1231,7 @@ async function runBatch() {
     let doneCount = 0;
     let errorCount = 0;
     let lastOk = null;
+    const failedUrls = [];
 
     for (let i = 0; i < urls.length; i++) {
         if (batchCancelled) {
@@ -1247,9 +1258,11 @@ async function runBatch() {
             lastOk = res;
         } else if (res.error === 'cancelled') {
             bpSetItem(i, '', 'скасовано');
+            failedUrls.push(urls[i]);
         } else {
             bpSetItem(i, 'error', '✕ помилка: ' + res.error);
             errorCount++;
+            failedUrls.push(urls[i]);
         }
 
         bpSetOverall(i + 1, urls.length);
@@ -1280,6 +1293,8 @@ async function runBatch() {
         }
     }
 
+    lastFailedBatchUrls = failedUrls;
+
     if (batchCancelled) {
         setBatchStatus(`⛔ Скасовано. Оброблено: ${doneCount}, помилок: ${errorCount}, з ${urls.length}.`, '');
     } else if (errorCount === 0) {
@@ -1288,8 +1303,23 @@ async function runBatch() {
         setBatchStatus(`⚠️ Завершено з помилками. Успішно: ${doneCount}, помилок: ${errorCount}, з ${urls.length}.`, '');
     }
 
+    if (failedUrls.length > 0) showRetryBatchBtn(failedUrls.length);
+
     lockAll(false);
     document.getElementById('fileBtn').disabled = fileRows.length === 0;
+}
+
+function showRetryBatchBtn(count) {
+    const btn = document.getElementById('retryBatchBtn');
+    btn.textContent = `🔁 Повторити невдалі (${count})`;
+    btn.style.display = 'inline-block';
+}
+function hideRetryBatchBtn() {
+    document.getElementById('retryBatchBtn').style.display = 'none';
+}
+function retryBatchFailed() {
+    if (!lastFailedBatchUrls.length) return;
+    runBatch(lastFailedBatchUrls.slice());
 }
 
 /* ════════════════════════════════════════════════
@@ -1416,23 +1446,30 @@ function buildSourceTextFromRow(row) {
     return txt;
 }
 
-async function runFileBatch() {
-    if (!fileRows.length) {
-        setFileStatus('⚠️ Спочатку завантажте файл з товарами!', 'err');
-        return;
+let lastFailedFileItems = [];
+
+async function runFileBatch(itemsOverride) {
+    let items;
+    if (itemsOverride && itemsOverride.length) {
+        items = itemsOverride;
+    } else {
+        if (!fileRows.length) {
+            setFileStatus('⚠️ Спочатку завантажте файл з товарами!', 'err');
+            return;
+        }
+        items = fileRows.map(r => ({
+            type: 'text',
+            article: r.article,
+            text: buildSourceTextFromRow(r),
+            label: 'https://file-import.local/product/' + encodeURIComponent(r.article !== '—' ? r.article : r.name),
+            display: (r.article !== '—' ? r.article + ' — ' : '') + r.name
+        }));
     }
 
     batchCancelled = false;
     lockAll(true);
+    hideRetryFileBtn();
     document.getElementById('bpCancelBtn').disabled = false;
-
-    const items = fileRows.map(r => ({
-        type: 'text',
-        article: r.article,
-        text: buildSourceTextFromRow(r),
-        label: 'https://file-import.local/product/' + encodeURIComponent(r.article !== '—' ? r.article : r.name),
-        display: (r.article !== '—' ? r.article + ' — ' : '') + r.name
-    }));
 
     bpRenderListGeneric(items.map(it => it.display));
     bpSetOverall(0, items.length);
@@ -1441,6 +1478,7 @@ async function runFileBatch() {
 
     const managerNotes = document.getElementById('managerNotes').value.trim();
     let doneCount = 0, errorCount = 0, lastOk = null;
+    const failedItems = [];
 
     for (let i = 0; i < items.length; i++) {
         if (batchCancelled) { bpSetItem(i, '', 'скасовано'); continue; }
@@ -1458,9 +1496,11 @@ async function runFileBatch() {
             doneCount++; lastOk = res;
         } else if (res.error === 'cancelled') {
             bpSetItem(i, '', 'скасовано');
+            failedItems.push(items[i]);
         } else {
             bpSetItem(i, 'error', '✕ помилка: ' + res.error);
             errorCount++;
+            failedItems.push(items[i]);
         }
         bpSetOverall(i + 1, items.length);
 
@@ -1472,6 +1512,8 @@ async function runFileBatch() {
 
     if (lastOk) showLastResultInMainFields(lastOk);
 
+    lastFailedFileItems = failedItems;
+
     if (batchCancelled) {
         setFileStatus(`⛔ Скасовано. Оброблено: ${doneCount}, помилок: ${errorCount}, з ${items.length}.`, '');
     } else if (errorCount === 0) {
@@ -1480,7 +1522,22 @@ async function runFileBatch() {
         setFileStatus(`⚠️ Завершено з помилками. Успішно: ${doneCount}, помилок: ${errorCount}, з ${items.length}.`, '');
     }
 
+    if (failedItems.length > 0) showRetryFileBtn(failedItems.length);
+
     lockAll(false);
+}
+
+function showRetryFileBtn(count) {
+    const btn = document.getElementById('retryFileBtn');
+    btn.textContent = `🔁 Повторити невдалі (${count})`;
+    btn.style.display = 'inline-block';
+}
+function hideRetryFileBtn() {
+    document.getElementById('retryFileBtn').style.display = 'none';
+}
+function retryFileFailed() {
+    if (!lastFailedFileItems.length) return;
+    runFileBatch(lastFailedFileItems.slice());
 }
 
 /* переиспользуемая отрисовка списка прогресса по произвольным меткам (URL либо артикул/назва) */
