@@ -182,6 +182,7 @@
         .btn-auto    { background: linear-gradient(135deg, #c084fc, #7c3aed); color: #fff; }
         .btn-batch   { background: linear-gradient(135deg, #f97316, #c2410c); color: #fff; }
         .btn-ghost   { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border2); }
+        .btn-nobrand { background: linear-gradient(135deg, #f0c44a, #c9a020); color: #0d0f12; }
 
         .action-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
 
@@ -640,9 +641,10 @@
                 </div>
 
                 <div class="action-row">
-                    <button class="btn btn-auto"    id="autoBtn"  onclick="runAuto()">⚡ Авто</button>
-                    <button class="btn btn-primary" id="genBtn"   onclick="generate()">✨ Створити опис</button>
-                    <button class="btn btn-seo"     id="seoBtn"   onclick="generateSEO()"  disabled>🔑 SEO-ключі</button>
+                    <button class="btn btn-auto"    id="autoBtn"   onclick="runAuto()">⚡ Авто</button>
+                    <button class="btn btn-primary" id="genBtn"    onclick="generate(false)">✨ Створити опис</button>
+                    <button class="btn btn-nobrand" id="noBrandBtn" onclick="generate(true)">🚫 БЕЗ БРЕНДА</button>
+                    <button class="btn btn-seo"     id="seoBtn"    onclick="generateSEO()"  disabled>🔑 SEO-ключі</button>
                     <button class="btn btn-blue"    id="nameBtn"  onclick="generateName()" disabled>✦ Покращити назву</button>
                     <button class="btn btn-sheets"  id="saveBtn"  onclick="saveToSheets()" disabled>📊 До таблиці</button>
                     <a href="https://docs.google.com/spreadsheets/d/1C5DXMyqQ_kPMIg8M8r5H16Gs0jUXHVQtXXB8YOS_9Pc/edit"
@@ -753,7 +755,10 @@
         <div id="batchProgress">
             <div class="bp-header">
                 <span class="bp-title">📦 Пакетна обробка</span>
-                <button class="ap-cancel" id="bpCancelBtn" onclick="cancelBatch()">✕ Скасувати</button>
+                <div style="display:flex; gap:14px; align-items:center;">
+                    <button class="ap-cancel" id="bpPauseBtn" onclick="togglePauseBatch()" style="color:var(--accent)">⏸ Пауза</button>
+                    <button class="ap-cancel" id="bpCancelBtn" onclick="cancelBatch()">✕ Скасувати</button>
+                </div>
             </div>
             <div class="bp-overall-label" id="bpOverallLabel">0 / 0 товарів оброблено</div>
             <div class="bp-overall-bar-wrap">
@@ -868,6 +873,9 @@ const SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbz50xuoXGhL1TT_Nofp
 let currentArticle = '';
 let autoCancelled  = false;
 let batchCancelled = false;
+let batchPaused       = false;
+let batchPauseResolve = null;
+let _noBrandMode   = false;
 
 /* ─── переключение режимов ─── */
 function switchMode(mode) {
@@ -951,7 +959,7 @@ function extractArticle(pageText) {
 
 /* ─── блокировка всех кнопок ─── */
 function lockAll(lock) {
-    ['autoBtn','genBtn','seoBtn','nameBtn','saveBtn','batchBtn','fileBtn'].forEach(id => {
+    ['autoBtn','genBtn','noBrandBtn','seoBtn','nameBtn','saveBtn','batchBtn','fileBtn'].forEach(id => {
         document.getElementById(id).disabled = lock;
     });
 }
@@ -996,7 +1004,7 @@ function cancelAuto() {
    onStage(stageIndex, state, msg) — callback для обновления UI прогресса.
    Возвращает { ok, article, url, nameUA, nameRU, descUA, descRU, seoUA, seoRU, error }
    ════════════════════════════════════════════════ */
-async function processProduct(source, managerNotes, onStage, isCancelled) {
+async function processProduct(source, managerNotes, noBrand, onStage, isCancelled) {
     const isUrl = (typeof source === 'string') || source.type === 'url';
     const url = isUrl ? (typeof source === 'string' ? source : source.url) : (source.label || '');
     const result = { ok: false, article: '', url, nameUA: '', nameRU: '', descUA: '', descRU: '', seoUA: '', seoRU: '' };
@@ -1021,7 +1029,7 @@ async function processProduct(source, managerNotes, onStage, isCancelled) {
     }
 
     onStage(1, 'active', '⏳ Генерую опис українською...');
-    const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes));
+    const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes, noBrand));
     if (isCancelled()) { result.error = 'cancelled'; return result; }
     if (!ua.ok) {
         onStage(1, 'error', '❌ Помилка при генерації УКР опису');
@@ -1042,7 +1050,7 @@ async function processProduct(source, managerNotes, onStage, isCancelled) {
     onStage(1, 'done');
 
     onStage(2, 'active', '⏳ Генерую SEO-ключі (УКР)...');
-    const seoUaRes = await callGemini("Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:\n\n" + ua.text);
+    const seoUaRes = await callGemini((noBrand ? "Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Повністю виключи назву бренду/виробника зі списку. Виведи їх просто через кому, без нумерації та списків:\n\n" : "Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:\n\n") + ua.text);
     if (isCancelled()) { result.error = 'cancelled'; return result; }
     if (seoUaRes.ok) result.seoUA = seoUaRes.text;
 
@@ -1053,7 +1061,7 @@ async function processProduct(source, managerNotes, onStage, isCancelled) {
     onStage(2, 'done');
 
     onStage(3, 'active', '⏳ Покращую найменування...');
-    const namePrompt = buildNamePrompt(ua.text, ru.text, result.seoUA, result.seoRU, managerNotes);
+    const namePrompt = buildNamePrompt(ua.text, ru.text, result.seoUA, result.seoRU, managerNotes, noBrand);
     const nameRes = await callGemini(namePrompt);
     if (isCancelled()) { result.error = 'cancelled'; return result; }
     if (nameRes.ok) {
@@ -1065,29 +1073,37 @@ async function processProduct(source, managerNotes, onStage, isCancelled) {
         onStage(3, 'error', '⚠️ Помилка покращення назви');
     }
 
+    // Збереження з повторними спробами
     onStage(4, 'active', '⏳ Зберігаю до Google Таблиці...');
-    try {
-        await fetch(SHEETS_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({
-                article: result.article,
-                url:     url,
-                nameUA:  result.nameUA,
-                nameRU:  result.nameRU,
-                descUA:  result.descUA,
-                descRU:  result.descRU,
-                seoUA:   result.seoUA,
-                seoRU:   result.seoRU,
-            })
-        });
-        onStage(4, 'done');
-    } catch (e) {
-        onStage(4, 'error', '⚠️ Помилка запису до таблиці');
+    const savePayload = JSON.stringify({
+        article: result.article,
+        url:     url,
+        nameUA:  result.nameUA,
+        nameRU:  result.nameRU,
+        descUA:  result.descUA,
+        descRU:  result.descRU,
+        seoUA:   result.seoUA,
+        seoRU:   result.seoRU,
+    });
+    let saveOk = false;
+    for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+            if (attempt > 0) await new Promise(r => setTimeout(r, 2500 * attempt));
+            await fetch(SHEETS_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: savePayload
+            });
+            saveOk = true;
+            break;
+        } catch (e) { /* мережева помилка — спробуємо ще раз */ }
     }
+    if (saveOk) onStage(4, 'done');
+    else        onStage(4, 'error', '⚠️ Помилка запису до таблиці (перевір повторно)');
 
-    result.ok = true;
+    result.ok     = true;   // дані оброблено — включаємо незалежно від запису
+    result.saveOk = saveOk; // окремий прапор для статусу таблиці
     return result;
 }
 
@@ -1119,7 +1135,7 @@ async function runAuto() {
         apSetBar(Math.min(100, (idx + (state === 'done' ? 1 : 0.4)) * 20));
     };
 
-    const res = await processProduct(url, managerNotes, onStageWrapped, () => autoCancelled);
+    const res = await processProduct(url, managerNotes, false, onStageWrapped, () => autoCancelled);
 
     if (autoCancelled) {
         apSetMsg('⛔ Авто-режим скасовано');
@@ -1196,8 +1212,43 @@ function bpSetOverall(done, total) {
 
 function cancelBatch() {
     batchCancelled = true;
+    // якщо зараз на паузі — розблокуємо, щоб цикл міг вийти
+    if (batchPaused && batchPauseResolve) {
+        batchPaused = false;
+        batchPauseResolve();
+        batchPauseResolve = null;
+    }
     setBatchStatus('⛔ Скасовується після поточного товару...', '');
     document.getElementById('bpCancelBtn').disabled = true;
+    document.getElementById('bpPauseBtn').disabled  = true;
+}
+
+function togglePauseBatch() {
+    batchPaused = !batchPaused;
+    const btn = document.getElementById('bpPauseBtn');
+    if (batchPaused) {
+        btn.textContent = '▶ Продовжити';
+        btn.style.color = 'var(--green)';
+        setBatchStatus('⏸ Пауза після поточного товару...', '');
+    } else {
+        btn.textContent = '⏸ Пауза';
+        btn.style.color = 'var(--accent)';
+        setBatchStatus('▶ Обробка відновлена...', '');
+        if (batchPauseResolve) { batchPauseResolve(); batchPauseResolve = null; }
+    }
+}
+
+async function waitIfPaused() {
+    if (batchPaused) {
+        await new Promise(resolve => { batchPauseResolve = resolve; });
+    }
+}
+
+function bpResetControls() {
+    batchPaused = false; batchPauseResolve = null;
+    const pb = document.getElementById('bpPauseBtn');
+    pb.disabled = false; pb.textContent = '⏸ Пауза'; pb.style.color = 'var(--accent)';
+    document.getElementById('bpCancelBtn').disabled = false;
 }
 
 const STAGE_LABELS = ['Парсинг', 'Опис УКР/РУС', 'SEO-ключі', 'Назва', 'Запис у таблицю'];
@@ -1221,7 +1272,7 @@ async function runBatch(urlsOverride) {
     batchCancelled = false;
     lockAll(true);
     hideRetryBatchBtn();
-    document.getElementById('bpCancelBtn').disabled = false;
+    bpResetControls();
     bpRenderList(urls);
     bpSetOverall(0, urls.length);
     bpShow();
@@ -1238,6 +1289,11 @@ async function runBatch(urlsOverride) {
             bpSetItem(i, '', 'скасовано');
             continue;
         }
+        await waitIfPaused();
+        if (batchCancelled) {
+            bpSetItem(i, '', 'скасовано');
+            continue;
+        }
 
         bpSetItem(i, 'active', 'старт...');
 
@@ -1250,11 +1306,13 @@ async function runBatch(urlsOverride) {
             }
         };
 
-        const res = await processProduct(urls[i], managerNotes, onStage, () => batchCancelled);
+        const res = await processProduct(urls[i], managerNotes, false, onStage, () => batchCancelled);
 
         if (res.ok) {
-            bpSetItem(i, 'done', '✓ готово', res.article);
+            const lbl = res.saveOk === false ? '⚠️ не збережено в таблицю' : '✓ готово';
+            bpSetItem(i, res.saveOk === false ? 'error' : 'done', lbl, res.article);
             doneCount++;
+            if (res.saveOk === false) errorCount++;
             lastOk = res;
         } else if (res.error === 'cancelled') {
             bpSetItem(i, '', 'скасовано');
@@ -1469,7 +1527,7 @@ async function runFileBatch(itemsOverride) {
     batchCancelled = false;
     lockAll(true);
     hideRetryFileBtn();
-    document.getElementById('bpCancelBtn').disabled = false;
+    bpResetControls();
 
     bpRenderListGeneric(items.map(it => it.display));
     bpSetOverall(0, items.length);
@@ -1482,6 +1540,8 @@ async function runFileBatch(itemsOverride) {
 
     for (let i = 0; i < items.length; i++) {
         if (batchCancelled) { bpSetItem(i, '', 'скасовано'); continue; }
+        await waitIfPaused();
+        if (batchCancelled) { bpSetItem(i, '', 'скасовано'); continue; }
         bpSetItem(i, 'active', 'старт...');
 
         const onStage = (stageIdx, state) => {
@@ -1489,11 +1549,12 @@ async function runFileBatch(itemsOverride) {
             bpSetItem(i, state === 'error' ? 'error' : 'active', (state === 'error' ? '❌ ' : '⏳ ') + label);
         };
 
-        const res = await processProduct(items[i], managerNotes, onStage, () => batchCancelled);
+        const res = await processProduct(items[i], managerNotes, false, onStage, () => batchCancelled);
 
         if (res.ok) {
-            bpSetItem(i, 'done', '✓ готово', res.article);
-            doneCount++; lastOk = res;
+            const lbl = res.saveOk === false ? '⚠️ не збережено в таблицю' : '✓ готово';
+            bpSetItem(i, res.saveOk === false ? 'error' : 'done', lbl, res.article);
+            doneCount++; if (res.saveOk === false) errorCount++; lastOk = res;
         } else if (res.error === 'cancelled') {
             bpSetItem(i, '', 'скасовано');
             failedItems.push(items[i]);
@@ -1579,9 +1640,10 @@ function showLastResultInMainFields(lastOk) {
 }
 
 /* ─── построение промпта для названия ─── */
-function buildNamePrompt(textUA, textRU, seoUA, seoRU, managerNotes) {
+function buildNamePrompt(textUA, textRU, seoUA, seoRU, managerNotes, noBrand) {
+    const noBrandNote = noBrand ? '\n⛔ РЕЖИМ «БЕЗ БРЕНДА»: ПОЛНОСТЬЮ исключи название бренда/торговой марки из наименования — заменяй нейтральными словами.\n' : '';
     return `У тебя есть готовое описание товара и SEO-ключи на двух языках.
-
+${noBrandNote}
 ОПИСАНИЕ (УКР):
 ${textUA}
 
@@ -1697,7 +1759,7 @@ async function generateName() {
     hideBlock('blockNameUA'); hideBlock('blockNameRU');
     document.getElementById('nameSectionHeader').classList.remove('visible');
     setStatus('⏳ Генерую найменування...', '');
-    const res = await callGemini(buildNamePrompt(textUA, textRU, seoUA, seoRU, document.getElementById('managerNotes').value.trim()));
+    const res = await callGemini(buildNamePrompt(textUA, textRU, seoUA, seoRU, document.getElementById('managerNotes').value.trim(), _noBrandMode));
     if (res.ok) {
         const lines = res.text.split('\n');
         document.getElementById('nameUA').value = lines.find(l => l.startsWith('UA:'))?.replace('UA:', '').trim().replace(/["«»""]/g, '') || '';
@@ -1709,19 +1771,24 @@ async function generateName() {
     btn.disabled = false;
 }
 
-function buildPrompt(pageText, lang, managerNotes) {
+function buildPrompt(pageText, lang, managerNotes, noBrand) {
     const isRu = lang === 'russian';
     const languageName = isRu ? 'русском' : 'украинском';
     const titleBlock   = isRu ? 'НАЗВАНИЕ ТОВАРА' : 'НАЗВА ТОВАРУ';
     const advHeader    = isRu ? 'ПРЕИМУЩЕСТВА:'   : 'ПЕРЕВАГИ:';
     const adviceHeader = isRu ? 'СОВЕТ:'          : 'ПОРАДА:';
     const faqHeader    = isRu ? 'ЧАСТЫЕ ВОПРОСЫ:' : 'ЧАСТІ ЗАПИТАННЯ:';
+    const noBrandBlock = noBrand ? `
+⛔ РЕЖИМ «БЕЗ БРЕНДА» — СТРОГО ОБЯЗАТЕЛЬНО
+• ПОЛНОСТЬЮ ИСКЛЮЧИ из текста название бренда/торговой марки/производителя, даже если оно есть в источнике или в примечаниях менеджера.
+• Вместо названия бренда используй нейтральные слова: «производитель», «данная модель», «этот товар».
+` : '';
 
     return `Ты профессиональный SEO-копирайтер интернет-магазина.
 
 ИСТОЧНИК ДАННЫХ (текст со страницы товара):
 ${pageText}
-
+${noBrandBlock}
 ${managerNotes ? `ИНФОРМАЦИЯ ОТ МЕНЕДЖЕРА (ПРИОРИТЕТНАЯ — см. правило 6):\n${managerNotes}\n` : ''}
 
 ГЛАВНЫЕ ПРАВИЛА
@@ -1774,14 +1841,17 @@ ${faqHeader}
 6. Выведи только готовое описание.`;
 }
 
-async function generate() {
+async function generate(noBrand) {
     const url = document.getElementById('link').value.trim();
     if (!url) { setStatus('⚠️ Вставте посилання на товар!', 'err'); return; }
     if (!url.startsWith('http')) { setStatus('⚠️ Посилання має починатись з http://', 'err'); return; }
 
+    _noBrandMode = noBrand;
     const managerNotes = document.getElementById('managerNotes').value.trim();
+    const modeLabel = noBrand ? ' [БЕЗ БРЕНДА]' : '';
     const btn = document.getElementById('genBtn');
     btn.disabled = true;
+    document.getElementById('noBrandBtn').disabled = true;
     document.getElementById('seoBtn').disabled  = true;
     document.getElementById('nameBtn').disabled = true;
     document.getElementById('saveBtn').disabled = true;
@@ -1799,27 +1869,29 @@ async function generate() {
     if (!pageText) {
         setStatus('❌ Не вдалося прочитати дані з сайту.', 'err');
         btn.disabled = false;
+        document.getElementById('noBrandBtn').disabled = false;
         return;
     }
 
-    setStatus('⏳ Витягую артикул і генерую опис...', '');
+    setStatus(`⏳ Витягую артикул і генерую опис${modeLabel}...`, '');
     showArticle(extractArticle(pageText));
-    const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes));
+    const ua = await callGemini(buildPrompt(pageText, 'ukrainian', managerNotes, noBrand));
 
     if (ua.ok) {
         document.getElementById('resUA').value = ua.text;
         showBlock('blockUA');
 
-        setStatus('⏳ Перекладаю на російську...', '');
+        setStatus(`⏳ Перекладаю на російську${modeLabel}...`, '');
         const ru = await callGemini(`Переведи следующий текст с украинского на русский язык. Сохрани структуру, заголовки и форматирование в точности. Выведи только перевод без пояснений:\n\n${ua.text}`);
         if (ru.ok) {
             document.getElementById('resRU').value = ru.text;
             showBlock('blockRU');
             document.getElementById('seoBtn').disabled = false;
-            setStatus(`✅ Опис готовий! Артикул: ${currentArticle}. Наступний крок — SEO-ключі.`, 'ok');
+            setStatus(`✅ Опис готовий${modeLabel}! Артикул: ${currentArticle}. Наступний крок — SEO-ключі.`, 'ok');
         } else { setStatus('⚠️ УКР готово, але помилка перекладу РУС.', ''); }
     } else { setStatus('❌ Помилка при генерації опису.', 'err'); }
     btn.disabled = false;
+    document.getElementById('noBrandBtn').disabled = false;
 }
 
 async function generateSEO() {
@@ -1833,7 +1905,9 @@ async function generateSEO() {
     document.getElementById('saveBtn').disabled = true;
     setStatus('⏳ Генерую SEO-ключі...', '');
 
-    const ua = await callGemini("Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:\n\n" + textUA);
+    const ua = await callGemini((_noBrandMode
+        ? "Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Повністю виключи назву бренду/виробника зі списку. Виведи їх просто через кому, без нумерації та списків:\n\n"
+        : "Напиши 15-20 релевантних SEO-ключів для просування цього тексту. Виведи їх просто через кому, без нумерації та списків:\n\n") + textUA);
     if (ua.ok) { document.getElementById('seoUA').value = ua.text; showBlock('blockSEO-UA'); }
 
     const ruSeo = await callGemini(`Переведи следующие SEO-ключи з украинского на русский язык. Сохрани формат — через запятую. Выведи только перевод без пояснений:\n\n${ua.text}`);
